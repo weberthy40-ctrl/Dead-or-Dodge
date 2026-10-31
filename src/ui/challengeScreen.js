@@ -1,5 +1,7 @@
+import { FOCUS_GOAL,FOCUS_GOAL_TEXT,buildFocusCoaching } from '../training/dodge/focusCoaching.js';
+import { mountFocusCoaching } from './focusCoaching.js';
 import { PREMIUM_FAMILIES } from '../game3d/artDirection.js';
-import { createFocusExercise } from '../training/dodge/focusExercise.js';
+import { createFocusExercise,FOCUS_RULESET_VERSION } from '../training/dodge/focusExercise.js';
 import { parseSeriesCode, SERIES_VERSION } from '../training/dodge/series.js';
 import { createSeriesExercise } from '../training/dodge/seriesExercise.js';
 import { createDodgeMode } from '../training/dodge/mode.js';
@@ -35,12 +37,12 @@ function historyView(host, progress, doc) {
 export function mountChallengeScreen({ screen, core, repository, code, family, loadPreview = () => import('../game3d/mountPreview.js') }) {
   const focused=family?PREMIUM_FAMILIES[family]:null,series = focused?{title:focused.label,code:family,duration:30,level:5}:parseSeriesCode(code), doc = screen.ownerDocument, host = element(doc, 'section', 'series-play');
   screen.classList.add('dodge-screen'); screen.append(host);
-  let active = true, revision = 0, cleanupRound = () => {};
+  let previousFocus=null;let active = true, revision = 0, cleanupRound = () => {};
   function renderRound() {
     revision++; cleanupRound(); const token = revision;
     const session = createSession({ countdown: 0, timeLimit: series.duration, events: core.events, metadata: { origin: focused?'focus':'challenge', code: series.code } });
     const rules = createDodgeMode({ session, mode: 'challenge', level: series.level, events: core.events });
-    const telemetry = createDodgeTelemetry({ session, mode: 'challenge', level: series.level, events: core.events, rulesetVersion: focused?'rift-focus-v1':SERIES_VERSION });
+    const telemetry = createDodgeTelemetry({ session, mode: 'challenge', level: series.level, events: core.events, rulesetVersion: focused?FOCUS_RULESET_VERSION:SERIES_VERSION });
     const recording = createDodgeReplay();
     const exercise = (focused?createFocusExercise:createSeriesExercise)({ family,code: series.code, events: core.events, attemptId: session.snapshot().id, isRunning: () => session.snapshot().state === 'running', getVitals: () => ({ lives: rules.snapshot().lives, maxLives: 3 }) });
     const stage = element(doc, 'div', 'stage'), badge = element(doc, 'div', 'series-playing-code');
@@ -70,7 +72,7 @@ export function mountChallengeScreen({ screen, core, repository, code, family, l
       const content = element(doc, 'div', 'result-content');
       mountDodgeFeedback({ container: content, metrics, recording: result });
       content.append(element(doc, 'p', 'status-note', focused?'Treino focado: não altera seu histórico, patente ou nível no Normal.':'Resultado das séries: não altera sua patente ou seu nível no Normal.'));
-      if(focused){content.append(element(doc,'p','muted',focused.lesson));} else {
+      if(focused){const coaching=buildFocusCoaching(family,metrics,previousFocus);mountFocusCoaching(content,coaching);if(coaching.summary)previousFocus=coaching.summary;} else {
       const saveStatus = element(doc, 'p', 'series-save-status', 'Salvando tentativa da série…'); saveStatus.setAttribute('role', 'status');
       const retry = element(doc, 'button', 'button', 'Tentar salvar novamente'); retry.type = 'button'; retry.hidden = true;
       const history = element(doc, 'section', 'series-comparison');
@@ -107,25 +109,25 @@ export function mountChallengeScreen({ screen, core, repository, code, family, l
       if (!current()) return;
       const s = session.snapshot(), lives = rules.snapshot().lives;
       const label = s.state === 'paused' ? 'Pausado' : s.state === 'idle' ? 'Pronto para iniciar' : `Restam ${Math.max(0, series.duration - s.elapsed).toFixed(1)} s`;
-      status.textContent = `${label} · Vidas: ${lives}/3`; pause.disabled = s.state === 'idle'; pause.textContent = s.state === 'paused' ? 'Retomar' : 'Pausar';
+      status.textContent = `${label} · Vidas: ${lives}/3${focused?` · Evitadas: ${telemetry.snapshot().threatsDodged}/${FOCUS_GOAL.dodges}`:''}`; pause.disabled = s.state === 'idle'; pause.textContent = s.state === 'paused' ? 'Retomar' : 'Pausar';
       rules.evaluate();
       const outcome = rules.snapshot().outcome;
       if (['victory', 'defeat'].includes(outcome) && !shown) { telemetry.step(0); if (telemetry.isFinal()) finish(); }
     }
     const unsubscribe = core.events.on('session:changed', update);
     const stopDamage = core.events.on('dodge:damage', event => { if (event.attemptId === session.snapshot().id) recording.mark({ time: session.snapshot().elapsed, variant: event.variant, id: event.attackId }); });
-    ready = mountDodgeReady({ screen, stage, session, title: series.title, help: focused?`${focused.lesson} 30 segundos, três vidas. Você pode repetir ou voltar à preparação.`:'30 segundos, três vidas. Repita o mesmo código para reencontrar os mesmos lançamentos.', startLabel: focused?'Iniciar exercício':'Iniciar série', onStart: update });
+    ready = mountDodgeReady({ screen, stage, session, title: series.title, help: focused?`${focused.lesson} ${FOCUS_GOAL_TEXT} Três vidas; você pode repetir ou voltar à preparação.`:'30 segundos, três vidas. Repita o mesmo código para reencontrar os mesmos lançamentos.', startLabel: focused?'Iniciar exercício':'Iniciar série', onStart: update });
     cleanupRound = () => { unsubscribe(); stopDamage(); ready.dispose(); review?.dispose(); preview?.dispose(); if (dialog.open) dialog.close?.(); rules.dispose(); telemetry.dispose(); exercise.dispose(); session.dispose(); recording.clear(); };
     update();
     Promise.resolve().then(loadPreview).then(({ mountPreview }) => {
       if (!current()) return;
       const mounted = mountPreview(stage, { session, exercise, events: core.events, onTick: update, onStep: (dt, from, to) => {
         telemetry.step(dt, from, to);
-        if (dt > 0) recording.capture(exercise.snapshot(), to, preview?.movement?.snapshot().angle ?? 0);
+        if (dt > 0) recording.capture({...exercise.snapshot(),impactEchoes:preview?.getImpactSnapshot?.()??[]}, to, preview?.movement?.snapshot().angle ?? 0,{force:Boolean(rules.snapshot().outcome)||session.snapshot().elapsed>=series.duration});
       }, onError: failure });
       if (current()) preview = mounted; else mounted.dispose();
     }).catch(failure);
   }
   renderRound();
-  return { dispose() { active = false; revision++; cleanupRound(); host.remove(); } };
+  return { dispose() { active = false; previousFocus=null;revision++; cleanupRound(); host.remove(); } };
 }

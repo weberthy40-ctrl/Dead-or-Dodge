@@ -1,3 +1,4 @@
+import { FOCUS_GOAL_TEXT } from '../training/dodge/focusCoaching.js';
 import { readDodgePlacement } from '../progression/dodgePlacement.js';
 import { loadPreferences } from '../settings/preferences.js';
 import { PREMIUM_FAMILIES } from '../game3d/artDirection.js';
@@ -16,7 +17,7 @@ export function mountDodgeJourney(screen,{preparation=false}={}){
  ]){const item=element(doc,'li','journey-step');item.append(element(doc,'h2','',title),element(doc,'p','muted',text),link(doc,label,path,'button'+(preparation&&title==='Treino guiado'?' primary':'')));steps.append(item);}
  host.append(steps);
  if(preparation){const controls=element(doc,'section','mode-card preparation-controls');controls.append(element(doc,'h2','','Seu Duelista Arcano'),element(doc,'p','muted',`Direito: mover · ${p.stopKey.replace('Key','')}: parar · ${p.flashKey.replace('Key','')}: Flash · ${p.dashKey.replace('Key','')}: dash · Y: câmera livre/travada · Espaço: centralizar.`),element(doc,'p','muted',`Qualidade: ${({leve:'Leve',medio:'Médio',alto:'Alto',ultra:'Ultra'})[p.quality]} · Áudio: ${p.muted?'silenciado':`${p.volume}%`}. Avisos e contornos de colisão permanecem legíveis nos quatro presets.`),link(doc,'Ajustar preferências','/settings','button'));host.append(controls);}
- const families=element(doc,'section','focus-families');families.append(element(doc,'h2','','Treine uma ameaça por vez'),element(doc,'p','muted','30 segundos e três vidas por exercício. Treinos focados não alteram patente, avaliação ou histórico oficial.'));
+ const families=element(doc,'section','focus-families');families.append(element(doc,'h2','','Treine uma ameaça por vez'),element(doc,'p','muted',`${FOCUS_GOAL_TEXT} Três vidas por exercício. O objetivo não altera patente, avaliação ou histórico oficial.`));
  const grid=element(doc,'div','focus-grid');
  for(const [id,family]of Object.entries(PREMIUM_FAMILIES)){const card=element(doc,'article','mode-card focus-card');card.style.setProperty('--family-color','#'+family.color.toString(16));card.append(element(doc,'span','focus-symbol',({linear:'➤',lance:'◇',hook:'⌁',beam:'═',area:'◎'})[id]),element(doc,'h3','',family.label),element(doc,'p','muted',family.lesson),link(doc,'Treinar esta habilidade',`/focus/dodge/${id}`,'button'));grid.append(card);}
  families.append(grid);host.append(families,link(doc,'Escolher modalidades e níveis livremente','/levels','button'));screen.append(host);

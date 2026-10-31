@@ -8,9 +8,11 @@ export function mountDodgeReplayReview({ container, recording, loadPreview = () 
   button.disabled = frames.length < 2; button.setAttribute('aria-expanded', 'false');
   const panel = element(doc, 'section', 'replay-review'); panel.hidden = true;
   container.append(button, panel);
-  const dialog = container.closest('dialog');
+  // Results may mount this component before attaching its content to the dialog.
+  const dialog = () => container.closest('dialog');
   const start = frames[0]?.time ?? 0, end = frames.at(-1)?.time ?? start;
   const markers = recording.markers.filter(marker => marker.time >= start && marker.time <= end);
+  const afterImpact=time=>{const at=frames.findIndex(frame=>frame.time>=time-1e-8);return at<0?frames.length-1:at;};
   const nearest = time => Math.max(0, frames.findLastIndex(frame => frame.time <= time));
   let index = markers.length ? nearest(Math.max(start, markers.at(-1).time - .5)) : 0;
   let active = true, preview = null, frameId = null, playing = false, last = null, playhead = start, generation = 0;
@@ -19,7 +21,7 @@ export function mountDodgeReplayReview({ container, recording, loadPreview = () 
   const slider = element(doc, 'input'); slider.type = 'range'; slider.min = '0'; slider.max = String(Math.max(0, frames.length - 1)); slider.step = '1'; slider.value = String(index); slider.setAttribute('aria-label', 'Instante da revisão');
   const speed = element(doc, 'select'); speed.setAttribute('aria-label', 'Velocidade da revisão');
   for (const value of [.25, .5, 1]) { const option = element(doc, 'option', '', `${value}×`); option.value = String(value); speed.append(option); }
-  speed.value = '.5';
+  speed.value = '0.5';
   const status = element(doc, 'p', 'muted');
   const timeline = element(doc, 'div', 'replay-timeline');
   for (const [i, marker] of markers.entries()) {
@@ -27,7 +29,7 @@ export function mountDodgeReplayReview({ container, recording, loadPreview = () 
     const dot = element(doc, 'button', 'replay-marker', String(i + 1)); dot.type = 'button';
     dot.style.left = `${(marker.time - start) / Math.max(.001, end - start) * 100}%`;
     dot.title = label; dot.setAttribute('aria-label', `Rever impacto: ${label}`); dot.dataset.time = String(marker.time);
-    dot.addEventListener('click', () => { stop(); present(nearest(marker.time)); });
+    dot.addEventListener('click', () => { stop(); present(afterImpact(marker.time)); });
     timeline.append(dot);
   }
   controls.append(play, speed, slider);
@@ -63,7 +65,7 @@ export function mountDodgeReplayReview({ container, recording, loadPreview = () 
   });
   slider.addEventListener('input', () => { stop(); present(Number(slider.value)); });
   button.addEventListener('click', async () => {
-    panel.hidden = !panel.hidden; dialog?.classList.toggle('reviewing', !panel.hidden);
+    panel.hidden = !panel.hidden; dialog()?.classList.toggle('reviewing', !panel.hidden);
     button.setAttribute('aria-expanded', String(!panel.hidden));
     if (panel.hidden) { stop(); preview?.dispose(); preview = null; generation++; button.textContent = 'Rever últimos 6 s'; return; }
     button.textContent = 'Fechar revisão'; present(index);
@@ -75,5 +77,5 @@ export function mountDodgeReplayReview({ container, recording, loadPreview = () 
       present(index);
     } catch { if (active) status.textContent = 'Não foi possível abrir a revisão.'; }
   });
-  return { dispose() { active = false; generation++; dialog?.classList.remove('reviewing'); stop(); preview?.dispose(); button.remove(); panel.remove(); } };
+  return { dispose() { active = false; generation++; dialog()?.classList.remove('reviewing'); stop(); preview?.dispose(); button.remove(); panel.remove(); } };
 }

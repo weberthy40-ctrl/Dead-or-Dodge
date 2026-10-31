@@ -44,7 +44,7 @@ Logs e capturas ficam em `artifacts/qa/<execução>/`, ignorado pelo Git. `QA_AR
 | `browser-isolation` | Salva progresso em um contexto, verifica outro vazio e confirma remoção das páginas ao fechar |
 | `browser-tutorial` | Movimento e teclas configuradas, pausa, colisão/repetição, saída da área e perfil sem resultados oficiais |
 | `browser-series` | Duas tentativas do mesmo código, pausa, IDs distintos, perfil/registro oficial preservados, comparação, recentes, abandono e backup em IndexedDB real |
-| `browser-rift` | Jornada opcional, preparação, acesso livre ao Normal 20, cinco famílias nos quatro presets, captura de resultados/revisão e progresso anterior preservado |
+| `browser-rift` | Jornada opcional, preparação, acesso livre ao Normal 20, cinco famílias nos quatro presets, impacto confirmado, objetivo, comparação de duas rodadas, revisão com reprodução em 0,5× e progresso anterior preservado |
 | `browser-smoke` | Navegação, 20 níveis de Esquiva e 30 das demais modalidades, quatro diagnósticos, dez remontagens, canvas/RAF, heap e quatro presets gráficos |
 | `browser-native` | IndexedDB nativo: migração, bloqueio, quatro modalidades, backup, conflitos, idempotência, quota/rollback e conquistas |
 | `browser-kiting-controls` | Clique direto, A + clique e A imediato com entrada nativa, uma ordem/um ataque, preferência após reload, salvamento real, filtros e backup com registro antigo |
@@ -91,3 +91,9 @@ Matriz inicial: Chrome e Edge atuais no Windows; 1366×768, 1920×1080 e 2560×1
 ### Aceitação do protótipo RIFT LAB
 
 Conferir no computador do jogador: leitura do Duelista em corrida, parada, virada, dash e Flash; ausência de atraso introduzido pelos efeitos; cinco famílias na preparação; áudio em baixa/alta densidade, mute e volume; contornos e iluminação nos quatro presets; entrada livre no Normal e continuidade da recomendação; avaliação guiada levando à preparação; tutorial e revisão sem modificar notas ou dados antigos. Capturas com relógio de simulação controlado demonstram estados visuais, não medem FPS ou latência.
+
+### Impactos e prática focada
+
+Após um acerto de feixe, área ou projétil, conferir um sinal breve e a atualização correta de vidas. Pausar deve congelar a apresentação; o sinal não pode causar novo dano ou interceptar cliques. Repetir nos quatro presets e com redução de movimento. Na revisão, clicar no último impacto e voltar a um instante anterior, verificando que os sinais seguem os quadros.
+
+Concluir uma rodada técnica observando o objetivo de tempo e oito esquivas; comparar com uma segunda rodada, depois sair e reabrir para verificar o descarte da comparação. Conferir que tentativas oficiais, patentes, avaliação e backup permanecem inalterados pelos exercícios focados. Os números do objetivo são uma referência inicial de prática, sujeita à calibração com jogadores.

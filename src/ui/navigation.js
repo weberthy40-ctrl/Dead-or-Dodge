@@ -149,7 +149,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
     }
     if (['/preview','/demo'].includes(route.path)||isDodge) loadPreview().then(({ mountPreview }) => {
       if (!active || revision !== renderRevision) return;
-      preview = mountPreview(screen.querySelector('.stage'), { events:core.events,session, exercise, onStep:(dt,from,to)=>{telemetry?.step(dt,from,to);if(dt>0&&dodgeRecording&&exercise){const move=preview?.movement?.snapshot();dodgeRecording.capture(exercise.snapshot(),to,move?.angle??0);}}, onTick:updateSession, onError: error => { core.errors.report(error, { source: 'preview' }); if(rules)rules.fail();else session?.finish('error'); } });
+      preview = mountPreview(screen.querySelector('.stage'), { events:core.events,session, exercise, onStep:(dt,from,to)=>{telemetry?.step(dt,from,to);if(dt>0&&dodgeRecording&&exercise){const move=preview?.movement?.snapshot();dodgeRecording.capture({...exercise.snapshot(),impactEchoes:preview?.getImpactSnapshot?.()??[]},to,move?.angle??0,{force:Boolean(rules?.snapshot().outcome)});}}, onTick:updateSession, onError: error => { core.errors.report(error, { source: 'preview' }); if(rules)rules.fail();else session?.finish('error'); } });
     }).catch(error => {
       if (!active || revision !== renderRevision) return;
       core.errors.report(error, { source: 'preview.load' });

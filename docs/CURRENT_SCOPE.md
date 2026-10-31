@@ -1,6 +1,6 @@
-# Escopo atual — 1.0.0-rc.19
+# Escopo atual — 1.0.0-rc.20
 
-Esta é a referência das regras atuais. A direção vigente é [RIFT LAB](RIFT_LAB_VISION.md); a [rc.19](RIFT_VERTICAL_RC19.md) integra o protótipo vertical de Esquiva, com jornada opcional e acesso livre ao Normal. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.18](KITING_CONTROLS_RC18.md) acrescenta controles e contexto de comparação ao Kiting. A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
+Esta é a referência das regras atuais. A [rc.20](IMPACTS_COACHING_RC20.md) acrescenta confirmação visual de impactos, captura final na revisão e objetivos de prática com comparação em memória. A direção vigente é [RIFT LAB](RIFT_LAB_VISION.md); a [rc.19](RIFT_VERTICAL_RC19.md) integra o protótipo vertical de Esquiva, com jornada opcional e acesso livre ao Normal. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.18](KITING_CONTROLS_RC18.md) acrescenta controles e contexto de comparação ao Kiting. A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
 
 O RIFT LAB é um treinador web em português para **computador, teclado e mouse**. Menus podem se adaptar a telas estreitas, mas gameplay mobile não faz parte do suporte. A aplicação é estática, sem instalação para jogar no site publicado.
 
@@ -66,3 +66,9 @@ A entrada oferece `/journey/dodge`, com avaliação → preparação → tutoria
 Os cinco exercícios `/focus/dodge/{linear,lance,hook,beam,area}` usam três vidas e até 30 segundos ativos, com métricas, orientação e revisão em memória. Não acessam o salvamento oficial, não concedem patente e não escrevem avaliação. O gancho está disponível nesse recorte focado; pesos, dificuldade e famílias do diretor oficial e as sequências `dd1` permanecem preservados.
 
 Sinais sonoros originais de preparação, impacto e mobilidade usam o AudioContext existente, com no máximo quatro vozes e preparações espaçadas em pelo menos 350 ms. A pressão muda a altura do sinal, sem ampliar o volume geral; mute e volume continuam disponíveis. Não há música contínua, serviços pagos, backend ou mudanças no schema de dados.
+
+## Impactos e objetivos de prática
+
+Um observador de apresentação cria até oito sinais visuais de impactos confirmados, por até 0,24 segundos ativos. A simulação continua removendo as ameaças e decidindo dano nos mesmos passos; o sinal não tem colisão. Os contornos essenciais aparecem no Leve, e a redução de movimento mantém a indicação estática. A revisão guarda os sinais em seus quadros, inclui o instante final entre amostras quando necessário e abre o primeiro quadro a partir de um marcador. Buscar a revisão nunca altera a sessão.
+
+Os exercícios focados passam a mostrar o objetivo provisório de concluir 30 segundos e evitar oito ameaças. As condições são separadas e não geram nota, patente ou avanço oficial. A repetição na mesma tela compara tempo, esquivas e impactos com a última rodada, sem inferir melhora de habilidade ou igualdade de exposição. Sair ou recarregar descarta a comparação. Não há campos novos em registros oficiais, preferências, banco ou backups.

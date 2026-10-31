@@ -1,3 +1,4 @@
+import { createImpactPresentation,EMPTY_IMPACTS } from './impactPresentation.js';
 import { mountFullscreen } from './fullscreen.js';
 import { loadSceneAssets,loadDodgeArt } from './sceneAssets.js';
 import { createFeedbackVisuals } from './feedbackVisuals.js';
@@ -21,7 +22,7 @@ export function mountPreview(container, { createRenderer = options => new THREE.
   mounted.get(container)?.dispose();
   const document = container.ownerDocument;let storage;try{storage=document.defaultView.localStorage;}catch{storage=null;}const preferences=loadPreferences(storage),graphics=GRAPHICS_PRESETS[preferences.quality],reducedMotion=preferences.motion==='reduced'||Boolean(document.defaultView.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
   const dodge=Boolean(exercise)&&!['precision','reflex','kiting'].includes(exercise.kind),viewConfig=dodge?DODGE_CAMERA:CAMERA;
-  let renderer, arena, character, observer, input, visuals, feedback, backdrop,fullscreen,shadowElapsed=0, disposed = false;
+  let renderer, arena, character, observer, input, visuals, feedback, backdrop,fullscreen,shadowElapsed=0,impactPresentation, disposed = false;
   const scene = new THREE.Scene(); scene.background = new THREE.Color(exercise?.kind==='precision'?0x10142a:0x151e30);
   const camera = new THREE.PerspectiveCamera(CAMERA.fov, 1, CAMERA.near, CAMERA.far);
   camera.position.set(viewConfig.x, viewConfig.y, viewConfig.z); camera.lookAt(0,0,0);
@@ -37,9 +38,9 @@ export function mountPreview(container, { createRenderer = options => new THREE.
     renderer.setSize(width,height,false); renderer.render(scene,camera);
   }
   function lost(event) { event.preventDefault(); input?.dispose(); fail(new Error('WebGL context lost.')); }
-  const api = { get movement(){return input?.movement;}, presentFrame(frame){if(disposed||controls||!renderer||!frame?.snapshot||![frame.player?.x,frame.player?.z,frame.angle].every(Number.isFinite))return false;character.setPose(frame.player,frame.angle);character.setHealthVisible?.(Boolean(frame.snapshot.maxLives));if(frame.snapshot.maxLives)character.setHealth(frame.snapshot.lives/frame.snapshot.maxLives);camera.position.set(frame.player.x+viewConfig.x*.78,viewConfig.y*.78,frame.player.z+viewConfig.z*.78);camera.lookAt(frame.player.x,0,frame.player.z);camera.updateMatrixWorld();visuals?.sync(frame.snapshot,frame.player);renderer.render(scene,camera);return true;}, dispose() {
+  const api = { getImpactSnapshot(){return impactPresentation?.sample(exercise.snapshot().elapsed)??EMPTY_IMPACTS;},get movement(){return input?.movement;}, presentFrame(frame){if(disposed||controls||!renderer||!frame?.snapshot||![frame.player?.x,frame.player?.z,frame.angle].every(Number.isFinite))return false;character.setPose(frame.player,frame.angle);character.setHealthVisible?.(Boolean(frame.snapshot.maxLives));if(frame.snapshot.maxLives)character.setHealth(frame.snapshot.lives/frame.snapshot.maxLives);camera.position.set(frame.player.x+viewConfig.x*.78,viewConfig.y*.78,frame.player.z+viewConfig.z*.78);camera.lookAt(frame.player.x,0,frame.player.z);camera.updateMatrixWorld();visuals?.sync(frame.snapshot,frame.player);renderer.render(scene,camera);return true;}, dispose() {
     if (disposed) return; disposed = true;
-    input?.dispose();fullscreen?.dispose(); observer?.disconnect(); document.removeEventListener('visibilitychange', resize);
+    impactPresentation?.dispose();input?.dispose();fullscreen?.dispose(); observer?.disconnect(); document.removeEventListener('visibilitychange', resize);
     document.defaultView?.removeEventListener('resize', resize);
     renderer?.domElement.removeEventListener('webglcontextlost', lost);
     backdrop?.dispose();feedback?.dispose();visuals?.dispose(); arena?.dispose(); character?.dispose(); renderer?.dispose(); renderer?.forceContextLoss?.();
@@ -67,6 +68,7 @@ export function mountPreview(container, { createRenderer = options => new THREE.
     document.addEventListener('visibilitychange',resize); document.defaultView?.addEventListener('resize',resize);
     renderer.domElement.addEventListener('webglcontextlost',lost); resize();
     if (exercise) visuals=exercise.kind==='precision'?createPrecisionVisuals(scene,camera,exercise):exercise.kind==='kiting'?createKitingVisuals(scene):exercise.kind==='reflex'?{sync(){},dispose(){}}:createDodgeVisuals(scene,{camera,container,reducedMotion,effects:graphics.effects,quality:preferences.quality});
+    if(dodge&&controls&&events&&session){impactPresentation=createImpactPresentation({events,attemptId:session.snapshot().id,getSnapshot:()=>exercise.snapshot()});const sync=visuals.sync;visuals.sync=(s,...args)=>sync({...s,impactEchoes:impactPresentation.sample(s.elapsed)},...args);}
     if(exercise)visuals.sync(exercise.snapshot(),{x:0,z:0});
     if(exercise)feedback=createFeedbackVisuals({scene,events,attemptId:session?.snapshot().id,enabled:graphics.effects,reducedMotion,position:()=>exercise.kind==='kiting'?exercise.snapshot().target.position:input?.movement.snapshot().position??{x:0,z:0}});
     if(fullscreenControls)fullscreen=mountFullscreen(container);

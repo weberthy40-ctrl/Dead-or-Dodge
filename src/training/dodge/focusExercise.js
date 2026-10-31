@@ -3,6 +3,8 @@ import { PREMIUM_FAMILIES } from '../../game3d/artDirection.js';
 import { DODGE_MOVEMENT_SPEED } from '../movement.js';
 import { readonlySnapshot } from '../snapshot.js';
 
+export const FOCUS_RULESET_VERSION='rift-focus-v1';
+
 /** Unscored focused practice reuses authoritative projectiles and swept collisions. */
 export function createFocusExercise({family,events,attemptId,isRunning=()=>true,getVitals=()=>({})}){
  const definition=PREMIUM_FAMILIES[family];if(!definition)throw new TypeError('Família de treino inválida.');

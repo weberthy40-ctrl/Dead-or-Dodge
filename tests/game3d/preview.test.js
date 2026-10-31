@@ -1,4 +1,9 @@
 // @vitest-environment jsdom
+import { createEventBus } from '../../src/core/eventBus.js';
+import { createFocusExercise } from '../../src/training/dodge/focusExercise.js';
+import { createSession } from '../../src/training/session.js';
+import { createDodgeMode } from '../../src/training/dodge/mode.js';
+import { createDodgeReplay } from '../../src/training/dodge/replay.js';
 import { describe, expect, it, vi } from 'vitest';
 import { ARENA,isInsideArena } from '../../src/game3d/spatial.js';
 import { createArena } from '../../src/game3d/arena.js';
@@ -42,4 +47,13 @@ describe('preview lifecycle without WebGL', () => {
     expect(container.querySelector('[role=alert]').textContent).toContain('WebGL'); expect(onError).toHaveBeenCalledTimes(1);
     preview.dispose(); expect(container.children).toHaveLength(0);
   });
+});
+
+it.each([{rules:'challenge',step:50,lives:2},{rules:'survival',step:33,lives:0}])('renders a real accepted beam impact in $rules and read-only review with a frozen clock',({rules,step,lives})=>{
+ vi.spyOn(document,'hidden','get').mockReturnValue(false);const events=createEventBus(),session=createSession({countdown:0,timeLimit:30,events}),mode=createDodgeMode({session,mode:rules,level:5,events}),exercise=createFocusExercise({family:'beam',events,attemptId:session.snapshot().id,isRunning:()=>session.snapshot().state==='running'}),recording=createDodgeReplay(),container=document.createElement('div');document.body.append(container);let callback,preview;
+ const renderer={domElement:document.createElement('canvas'),setPixelRatio(){},setSize(){},render:vi.fn(),dispose(){},forceContextLoss(){}};
+ preview=mountPreview(container,{exercise,session,events,createRenderer:()=>renderer,fullscreenControls:false,requestFrame:fn=>{callback=fn;return 1;},cancelFrame(){},onStep:(_dt,_from,to)=>recording.capture({...exercise.snapshot(),impactEchoes:preview.getImpactSnapshot()},to,0,{force:Boolean(mode.snapshot().outcome)})});
+ session.start();callback(0);for(let t=step;t<=2750;t+=step)callback(t);expect(mode.snapshot().lives).toBe(lives);expect(exercise.snapshot().projectiles).toHaveLength(0);expect(preview.getImpactSnapshot()).toHaveLength(1);const liveScene=renderer.render.mock.calls.at(-1)[0];expect(liveScene.getObjectByName('impact-beam').parent.visible).toBe(true);if(lives===0){expect(session.snapshot().state).toBe('completed');expect(recording.snapshot().frames.at(-1).time).toBe(session.snapshot().elapsed);}
+ const snapshot=preview.getImpactSnapshot();session.pause();callback(2800);expect(preview.getImpactSnapshot()).toEqual(snapshot);const state=session.snapshot(),frames=recording.snapshot().frames,frame=frames.at(-1),reviewHost=document.createElement('div'),reviewRenderer={...renderer,domElement:document.createElement('canvas'),render:vi.fn()};const review=mountPreview(reviewHost,{controls:false,exercise:{kind:'dodge',snapshot:()=>frame.snapshot},createRenderer:()=>reviewRenderer,fullscreenControls:false});
+ review.presentFrame(frame);const reviewScene=reviewRenderer.render.mock.calls.at(-1)[0];expect(reviewScene.getObjectByName('impact-beam').parent.visible).toBe(true);review.presentFrame(frames[0]);expect(reviewScene.getObjectByName('impact-beam').parent.visible).toBe(false);expect(session.snapshot()).toEqual(state);review.dispose();preview.dispose();expect(events.emit('dodge:trajectory',{attemptId:session.snapshot().id,id:'late'})).toBe(0);exercise.dispose();mode.dispose();session.dispose();container.remove();
 });

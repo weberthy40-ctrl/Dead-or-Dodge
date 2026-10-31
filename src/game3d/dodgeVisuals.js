@@ -1,3 +1,4 @@
+import { createDodgeImpactVisuals } from './dodgeImpactVisuals.js';
 import { PREMIUM_FAMILIES } from './artDirection.js';
 import * as THREE from 'three';
 import { VARIANTS } from '../training/dodge/projectiles.js';
@@ -6,6 +7,7 @@ export function projectileHaloSize(radius,depth,fov,height){const pixel=2*Math.m
 /** Solid silhouettes carry the hit shape; small halos and tails are cosmetic. */
 export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,effects=true,quality='medio'}={}){
  const group=new THREE.Group();group.name='Dodge spells';scene.add(group);
+ const impactVisuals=createDodgeImpactVisuals(scene,{effects,reducedMotion});
  const owned=new Set(),active=new Map(),pool=new Map(),casters=[];let assets=null,disposed=false,lastTime=0,actorCount=0;
  const own=value=>{owned.add(value);return value;};
  const material=(color,opacity=1)=>own(new THREE.MeshBasicMaterial({color,opacity,transparent:opacity<1,depthWrite:false,depthTest:false,side:THREE.DoubleSide,toneMapped:false}));
@@ -27,7 +29,7 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
   const outline=mesh(geometry,dark,effect,'projectile-outline',117),body=mesh(geometry,headMaterial,effect,'projectile-head',118),core=mesh(geometries.sphere,white,effect,'projectile-core',119),tail=mesh(geometries.trail,s.tail,effect,'projectile-tail',115),hoop=mesh(geometries.hoop,whiteSoft,effect,'orb-ring',120),halo=new THREE.Sprite(s.halo);halo.renderOrder=114;halo.raycast=()=>{};effect.add(halo);
   const footprint=floor(geometries.ring,s.tail,effect,'collision-footprint',101),beam=mesh(geometries.box,s.solid,effect,'beam',110),beamCore=mesh(geometries.box,white,effect,'beam-core',111),impact=floor(geometries.disk,s.fill,effect,'impact-area'),edge=floor(geometries.ring,s.solid,effect,'impact-edge',102),pillar=mesh(geometries.cone,s.fill,effect,'fire-column',103),wall=floor(geometries.wall,s.solid,effect,'cage-wall',105),inner=floor(geometries.ring,whiteSoft,effect,'cage-inner',106),outer=floor(geometries.ring,ink,effect,'cage-outline',104);
   const posts=Array.from({length:8},()=>mesh(geometries.post,s.solid,effect,'cage-post',105)),caps=Array.from({length:8},()=>mesh(geometries.crystal,white,effect,'cage-crystal',106));
-  const links=Array.from({length:quality==='ultra'?6:quality==='alto'?4:2},()=>mesh(geometries.hoop,s.tail,effect,'rune-chain',113));
+  const links=variant==='hook_linear'?Array.from({length:quality==='ultra'?6:quality==='alto'?4:2},()=>mesh(geometries.hoop,s.tail,effect,'rune-chain',113)):[];
   const charge=mesh(geometries.sphere,whiteSoft,root,'cast-charge',110);
   const arrow=arrows?.ownerDocument.createElement('span');if(arrow){arrow.className='dodge-origin-arrow';arrow.hidden=true;arrow.style.color='#'+s.color.toString(16).padStart(6,'0');arrows.append(arrow);}
   return {root,warning,effect,path,guide,disc,rim,clock,warningShadow,outline,body,core,tail,hoop,halo,footprint,beam,beamCore,impact,edge,pillar,wall,inner,outer,posts,caps,links,charge,arrow,caster:null,variant};
@@ -51,7 +53,7 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
   if(p.variant==='dark_orb'){e.body.scale.setScalar(r*.9);e.outline.scale.setScalar(r*1.03);e.hoop.visible=true;e.hoop.position.copy(e.body.position);e.hoop.rotation.set(Math.PI/3,reducedMotion?0:time*2,.3);e.hoop.scale.setScalar(r*.92);e.core.scale.set(r*.35,r*.35,r*.35);}
  }
  return {applyAssets(value){assets=value;for(const a of [...casters,...[...active.values()].map(e=>e.caster).filter(Boolean)])a.applyAssets(value);},sync(snapshot){
-  if(disposed)return;const time=snapshot.elapsed??lastTime+.016,dt=Math.max(0,Math.min(.1,time-lastTime));lastTime=time;
+  if(disposed)return;impactVisuals.sync(snapshot.impactEchoes);const time=snapshot.elapsed??lastTime+.016,dt=Math.max(0,Math.min(.1,time-lastTime));lastTime=time;
   if(legend){const label=snapshot.level>=3?'Contorno = área de impacto · Gaiola: apenas a borda causa dano':'Trajetória de apoio ativa · Saia do contorno antes do impacto';if(legend.textContent!==label)legend.textContent=label;}
   const ids=new Set(snapshot.projectiles.map(p=>p.id));for(const id of active.keys())if(!ids.has(id))retire(id);
   for(const p of snapshot.projectiles){
@@ -61,7 +63,7 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
    for(const name of ['path','guide','disc','rim','clock','warningShadow','outline','body','core','tail','hoop','halo','footprint','beam','beamCore','impact','edge','pillar','wall','inner','outer'])e[name].visible=false;
    for(const node of [...e.posts,...e.caps,...e.links])node.visible=false;
    if(p.caster&&(waiting||p.age<(p.windup??0)+.12)){
-    if(!e.caster){e.caster=actor(['arcane_bolt','needle_burst','heavy_lance','artillery','meteor_rain'].includes(p.variant));if(e.caster){e.caster.setAccent(VARIANTS[p.variant].color);e.root.add(e.caster.group);}}
+    if(!e.caster){e.caster=actor(['arcane_bolt','needle_burst','heavy_lance','artillery','meteor_rain'].includes(p.variant));if(e.caster){e.caster.setAccent(styles[p.variant].color);e.root.add(e.caster.group);}}
     if(e.caster){const aim=['bolt','beam'].includes(shape)?{x:p.caster.x+p.direction.x,z:p.caster.z+p.direction.z}:p.origin;e.caster.setPose(p.caster,Math.atan2(aim.x-p.caster.x,aim.z-p.caster.z));e.caster.animate({attackPhase:waiting?'windup':null},dt);}
    }else releaseCaster(e);
    e.charge.visible=Boolean(p.caster)&&waiting;
@@ -83,5 +85,5 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
     }
    }
   }
- },dispose(){if(disposed)return;disposed=true;for(const id of active.keys())retire(id);for(const a of casters)a.dispose();casters.length=0;pool.clear();group.removeFromParent();group.clear();for(const value of owned)value.dispose();owned.clear();arrows?.remove();legend?.remove();}};
+ },dispose(){if(disposed)return;disposed=true;impactVisuals.dispose();for(const id of active.keys())retire(id);for(const a of casters)a.dispose();casters.length=0;pool.clear();group.removeFromParent();group.clear();for(const value of owned)value.dispose();owned.clear();arrows?.remove();legend?.remove();}};
 }
