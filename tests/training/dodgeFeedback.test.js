@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { buildDodgeFeedback, DODGE_ADVICE } from '../../src/training/dodge/feedback.js';
 const metrics = { validHits: 3, threatsHit: 3, threatsDodged: 9, elapsedActiveSeconds: 42, endReason: 'defeat' };
 it('uses actual impacts to offer advice for every current spell family', () => {
-  expect(Object.keys(DODGE_ADVICE)).toHaveLength(9);
+  expect(Object.keys(DODGE_ADVICE)).toHaveLength(10);
   for (const variant of Object.keys(DODGE_ADVICE)) {
     const result = buildDodgeFeedback(metrics, { [variant]: 2 });
     expect(result.observation).toContain('2 de 3 impactos'); expect(result.action).toBe(DODGE_ADVICE[variant]);

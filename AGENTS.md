@@ -7,3 +7,5 @@
 - Depois do push, acompanhe o workflow de Pages e confira o site publicado. Relate o link e o estado real do deploy; um push bem-sucedido não equivale a publicação concluída. Investigue e corrija falhas de instalação, validação ou deployment que estejam no escopo.
 - Não publique dependências instaladas, builds locais, logs, artefatos de QA, credenciais ou dados de jogador. O workflow gera `dist` para o Pages.
 - As regras atuais estão em `docs/CURRENT_SCOPE.md`; comandos de QA e limites em `docs/QA.md`. Preserve notas e backups existentes. Documente mudanças nos contratos de pontuação e persistência.
+
+- A direção de produto atual é [RIFT LAB](docs/RIFT_LAB_VISION.md). Jornada e avaliação são opcionais; o Normal aceita escolha livre de níveis. Preserve a resposta dos controles e a independência entre arte, colisões e pontuação. O protagonista usa base KayKit CC0 adaptada; mantenha os créditos e distinga componentes originais de reutilizados.

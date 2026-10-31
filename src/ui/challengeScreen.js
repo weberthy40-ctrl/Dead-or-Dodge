@@ -1,3 +1,5 @@
+import { PREMIUM_FAMILIES } from '../game3d/artDirection.js';
+import { createFocusExercise } from '../training/dodge/focusExercise.js';
 import { parseSeriesCode, SERIES_VERSION } from '../training/dodge/series.js';
 import { createSeriesExercise } from '../training/dodge/seriesExercise.js';
 import { createDodgeMode } from '../training/dodge/mode.js';
@@ -30,23 +32,23 @@ function historyView(host, progress, doc) {
   if (progress.recent.length < 2) host.append(element(doc, 'p', 'status-note', 'Repita este código para ter outra tentativa com a mesma sequência de lançamentos.'));
 }
 
-export function mountChallengeScreen({ screen, core, repository, code, loadPreview = () => import('../game3d/mountPreview.js') }) {
-  const series = parseSeriesCode(code), doc = screen.ownerDocument, host = element(doc, 'section', 'series-play');
+export function mountChallengeScreen({ screen, core, repository, code, family, loadPreview = () => import('../game3d/mountPreview.js') }) {
+  const focused=family?PREMIUM_FAMILIES[family]:null,series = focused?{title:focused.label,code:family,duration:30,level:5}:parseSeriesCode(code), doc = screen.ownerDocument, host = element(doc, 'section', 'series-play');
   screen.classList.add('dodge-screen'); screen.append(host);
   let active = true, revision = 0, cleanupRound = () => {};
   function renderRound() {
     revision++; cleanupRound(); const token = revision;
-    const session = createSession({ countdown: 0, timeLimit: series.duration, events: core.events, metadata: { origin: 'challenge', code: series.code } });
+    const session = createSession({ countdown: 0, timeLimit: series.duration, events: core.events, metadata: { origin: focused?'focus':'challenge', code: series.code } });
     const rules = createDodgeMode({ session, mode: 'challenge', level: series.level, events: core.events });
-    const telemetry = createDodgeTelemetry({ session, mode: 'challenge', level: series.level, events: core.events, rulesetVersion: SERIES_VERSION });
+    const telemetry = createDodgeTelemetry({ session, mode: 'challenge', level: series.level, events: core.events, rulesetVersion: focused?'rift-focus-v1':SERIES_VERSION });
     const recording = createDodgeReplay();
-    const exercise = createSeriesExercise({ code: series.code, events: core.events, attemptId: session.snapshot().id, isRunning: () => session.snapshot().state === 'running', getVitals: () => ({ lives: rules.snapshot().lives, maxLives: 3 }) });
+    const exercise = (focused?createFocusExercise:createSeriesExercise)({ family,code: series.code, events: core.events, attemptId: session.snapshot().id, isRunning: () => session.snapshot().state === 'running', getVitals: () => ({ lives: rules.snapshot().lives, maxLives: 3 }) });
     const stage = element(doc, 'div', 'stage'), badge = element(doc, 'div', 'series-playing-code');
-    badge.append(element(doc, 'span', 'eyebrow', series.title), element(doc, 'code', 'series-code', series.code));
+    badge.append(element(doc, 'span', 'eyebrow', series.title), element(doc, 'code', 'series-code', focused?'TREINO FOCADO · SEM PONTUAÇÃO':series.code));
     const hud = element(doc, 'div', 'session-hud'), status = element(doc, 'p', 'series-status');
     const pause = element(doc, 'button', 'button', 'Pausar'); pause.type = 'button';
     pause.addEventListener('click', () => { if (session.snapshot().state === 'paused') session.resume(); else session.pause(); focus(); });
-    hud.append(status, pause, link(doc, 'Sair / abandonar', '/challenges/dodge', 'button dodge-exit'));
+    hud.append(status, pause, link(doc, 'Sair / abandonar', focused?'/prepare/dodge':'/challenges/dodge', 'button dodge-exit'));
     const dialog = element(doc, 'dialog', 'result-metrics series-result'); dialog.hidden = true;
     dialog.setAttribute('aria-labelledby', 'series-result-title'); dialog.addEventListener('cancel', event => event.preventDefault());
     const errorHost = element(doc, 'section', 'series-error'); errorHost.hidden = true; errorHost.setAttribute('role', 'alert');
@@ -64,10 +66,11 @@ export function mountChallengeScreen({ screen, core, repository, code, loadPrevi
     function finish() {
       shown = true; hud.hidden = true; dialog.hidden = false;
       const metrics = telemetry.snapshot(), result = recording.snapshot();
-      const title = element(doc, 'h2', 'result-title', rules.snapshot().outcome === 'victory' ? 'Série concluída' : 'Fim desta tentativa'); title.id = 'series-result-title';
+      const title = element(doc, 'h2', 'result-title', rules.snapshot().outcome === 'victory' ? (focused?'Treino concluído':'Série concluída') : 'Fim desta tentativa'); title.id = 'series-result-title';
       const content = element(doc, 'div', 'result-content');
       mountDodgeFeedback({ container: content, metrics, recording: result });
-      content.append(element(doc, 'p', 'status-note', 'Resultado das séries: não altera sua patente ou seu nível no Normal.'));
+      content.append(element(doc, 'p', 'status-note', focused?'Treino focado: não altera seu histórico, patente ou nível no Normal.':'Resultado das séries: não altera sua patente ou seu nível no Normal.'));
+      if(focused){content.append(element(doc,'p','muted',focused.lesson));} else {
       const saveStatus = element(doc, 'p', 'series-save-status', 'Salvando tentativa da série…'); saveStatus.setAttribute('role', 'status');
       const retry = element(doc, 'button', 'button', 'Tentar salvar novamente'); retry.type = 'button'; retry.hidden = true;
       const history = element(doc, 'section', 'series-comparison');
@@ -92,12 +95,13 @@ export function mountChallengeScreen({ screen, core, repository, code, loadPrevi
         } finally { busy = false; }
       }
       retry.addEventListener('click', save); readRetry.addEventListener('click', compare);
+      save();}
       review = mountDodgeReplayReview({ container: content, recording: result, loadPreview });
       const actions = element(doc, 'div', 'result-actions');
-      const again = element(doc, 'button', 'button primary', 'Repetir a mesma série'); again.type = 'button'; again.addEventListener('click', renderRound);
-      actions.append(again, link(doc, 'Escolher outra série', '/challenges/dodge', 'button')); dialog.append(title, content, actions);
+      const again = element(doc, 'button', 'button primary', focused?'Repetir exercício':'Repetir a mesma série'); again.type = 'button'; again.addEventListener('click', renderRound);
+      actions.append(again, link(doc, focused?'Voltar à preparação':'Escolher outra série', focused?'/prepare/dodge':'/challenges/dodge', 'button')); dialog.append(title, content, actions);
       if (dialog.showModal) dialog.showModal(); else dialog.setAttribute('open', '');
-      again.focus(); save();
+      again.focus();
     }
     function update() {
       if (!current()) return;
@@ -110,7 +114,7 @@ export function mountChallengeScreen({ screen, core, repository, code, loadPrevi
     }
     const unsubscribe = core.events.on('session:changed', update);
     const stopDamage = core.events.on('dodge:damage', event => { if (event.attemptId === session.snapshot().id) recording.mark({ time: session.snapshot().elapsed, variant: event.variant, id: event.attackId }); });
-    ready = mountDodgeReady({ screen, stage, session, title: series.title, help: '30 segundos, três vidas. Repita o mesmo código para reencontrar os mesmos lançamentos.', startLabel: 'Iniciar série', onStart: update });
+    ready = mountDodgeReady({ screen, stage, session, title: series.title, help: focused?`${focused.lesson} 30 segundos, três vidas. Você pode repetir ou voltar à preparação.`:'30 segundos, três vidas. Repita o mesmo código para reencontrar os mesmos lançamentos.', startLabel: focused?'Iniciar exercício':'Iniciar série', onStart: update });
     cleanupRound = () => { unsubscribe(); stopDamage(); ready.dispose(); review?.dispose(); preview?.dispose(); if (dialog.open) dialog.close?.(); rules.dispose(); telemetry.dispose(); exercise.dispose(); session.dispose(); recording.clear(); };
     update();
     Promise.resolve().then(loadPreview).then(({ mountPreview }) => {

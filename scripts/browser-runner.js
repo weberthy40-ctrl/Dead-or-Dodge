@@ -101,7 +101,7 @@ try {
   if (env.QA_SKIP_FULLSCREEN) console.log('Tela cheia: NÃO VERIFICADA nesta execução. Execute QA_HEADED=1 e o roteiro manual para validá-la.');
   console.log(`Artefatos: ${artifacts}`);
   // Gameplay deliberately precedes dodge: shared-state regressions must not return.
-  for (const name of ['browser-isolation', 'browser-tutorial', 'browser-series', 'browser-kiting-controls', 'browser-smoke', 'browser-native', 'browser-feedback', 'browser-dodge']) {
+  for (const name of ['browser-isolation', 'browser-tutorial', 'browser-series', 'browser-kiting-controls', 'browser-rift', 'browser-smoke', 'browser-native', 'browser-feedback', 'browser-dodge']) {
     await runSuite(name, base, env);
   }
   await stop(server);

@@ -44,11 +44,12 @@ Logs e capturas ficam em `artifacts/qa/<execução>/`, ignorado pelo Git. `QA_AR
 | `browser-isolation` | Salva progresso em um contexto, verifica outro vazio e confirma remoção das páginas ao fechar |
 | `browser-tutorial` | Movimento e teclas configuradas, pausa, colisão/repetição, saída da área e perfil sem resultados oficiais |
 | `browser-series` | Duas tentativas do mesmo código, pausa, IDs distintos, perfil/registro oficial preservados, comparação, recentes, abandono e backup em IndexedDB real |
-| `browser-smoke` | Navegação, 20 níveis de Esquiva e 30 das demais modalidades, quatro diagnósticos, dez remontagens, canvas/RAF, heap e presets gráficos |
+| `browser-rift` | Jornada opcional, preparação, acesso livre ao Normal 20, cinco famílias nos quatro presets, captura de resultados/revisão e progresso anterior preservado |
+| `browser-smoke` | Navegação, 20 níveis de Esquiva e 30 das demais modalidades, quatro diagnósticos, dez remontagens, canvas/RAF, heap e quatro presets gráficos |
 | `browser-native` | IndexedDB nativo: migração, bloqueio, quatro modalidades, backup, conflitos, idempotência, quota/rollback e conquistas |
 | `browser-kiting-controls` | Clique direto, A + clique e A imediato com entrada nativa, uma ordem/um ataque, preferência após reload, salvamento real, filtros e backup com registro antigo |
 | `browser-feedback` | Ataque/cancelamento/abate/derrota em Kiting, quatro grupos de Precisão e sinais de Reflexos; relógio controlado no trecho de Precisão |
-| `browser-dodge` | Sobrevivência 20, bloqueio do Normal, cinco etapas adaptativas, nível indicado, mobilidade, câmera, revisão e perfil |
+| `browser-dodge` | Sobrevivência 20, acesso livre ao Normal, cinco etapas adaptativas, nível indicado, mobilidade, câmera, revisão e perfil |
 | `browser-production` | Página e versão do build, carregamento de modelos 3D e retorno ao menu sem canvas retido |
 
 Gameplay é executado antes de Esquiva, na ordem que reproduzia a interferência de resultados na rc.14. Os contextos isolados devem impedir essa regressão.
@@ -86,3 +87,7 @@ Matriz inicial: Chrome e Edge atuais no Windows; 1366×768, 1920×1080 e 2560×1
 9. **Interface:** testar tela cheia, sair, repetir e voltar ao menu; ações do resultado devem continuar visíveis. Conferir contraste, texto ampliado, tabulação, redução de movimento, mute e volume. Testar troca de qualidade ao reabrir a arena.
 10. **Mouse:** medir três passagens físicas com régua e entrada bruta; comparar três rodadas por DPI nas mesmas condições. Resize deve invalidar a rodada. Confirmar conforto no computador, sem tratar a comparação como medição do elo do LoL.
 11. **Falhas e estabilidade:** negar armazenamento, simular falta/perda de WebGL, alternar modalidades e repetir sessões longas. Conferir mensagens úteis, ausência de registros falsos e recuperação possível. Medir tempos de frame e memória; a aprovação dos testes não substitui essa medição.
+
+### Aceitação do protótipo RIFT LAB
+
+Conferir no computador do jogador: leitura do Duelista em corrida, parada, virada, dash e Flash; ausência de atraso introduzido pelos efeitos; cinco famílias na preparação; áudio em baixa/alta densidade, mute e volume; contornos e iluminação nos quatro presets; entrada livre no Normal e continuidade da recomendação; avaliação guiada levando à preparação; tutorial e revisão sem modificar notas ou dados antigos. Capturas com relógio de simulação controlado demonstram estados visuais, não medem FPS ou latência.

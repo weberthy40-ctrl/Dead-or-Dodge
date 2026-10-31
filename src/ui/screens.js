@@ -1,3 +1,4 @@
+import { PREMIUM_FAMILIES } from '../game3d/artDirection.js';
 import { MAX_DODGE_LEVEL } from '../training/dodge/constants.js';
 import { GAME_VERSION } from '../app/version.js';
 import { MODALITIES } from './routes.js';
@@ -9,30 +10,30 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
     const home = createFoundationView(document);
     home.classList.add('home');
     const panel = home.querySelector('section');
-    panel.replaceChildren(element(document,'span','eyebrow','SEU PRÓXIMO NÍVEL COMEÇA AQUI'),element(document,'h1','','Mecânica afiada.\nJogo diferente.'),element(document,'p','foundation__message','Velocidade, precisão e controle. Entre na arena e transforme cada treino em evolução.'));
-    const actions=element(document,'div','actions');actions.append(link(document,'Entrar na arena →','/levels','button primary'),link(document,'Descobrir meu nível','/diagnostics','button'));panel.append(actions);
-    const art=element(document,'div','hero-art');art.setAttribute('aria-hidden','true');art.append(element(document,'span','hero-art__label','CAMPO DE TREINAMENTO'),element(document,'span','hero-art__cross','✦'),element(document,'span','hero-art__caption','FOCO. MOVIMENTO. EXECUÇÃO.'));home.append(art);
+    panel.replaceChildren(element(document,'span','eyebrow','RIFT LAB / TREINAMENTO DE MECÂNICAS'),element(document,'h1','','Mecânica afiada.\nPrecisão arcana.'),element(document,'p','foundation__message','Velocidade, precisão e controle. Entre na arena e transforme cada treino em evolução.'));
+    const actions=element(document,'div','actions');actions.append(link(document,'Começar jornada de Esquiva →','/journey/dodge','button primary'),link(document,'Escolher meu treino','/levels','button'),link(document,'Descobrir meu nível','/diagnostics','button'));panel.append(actions);
+    const art=element(document,'div','hero-art');art.setAttribute('aria-hidden','true');art.append(element(document,'span','hero-art__label','A ROTA CENTRAL / DUELISTA ARCANO'),element(document,'span','hero-art__cross','◈'),element(document,'span','hero-art__caption','FOCO. MOVIMENTO. EXECUÇÃO.'));home.append(art);
     const grid=element(document,'div','home-modes');
     for(const [index,mode]of MODALITIES.entries()){
       const card=link(document,'',`/train/${mode.id}/1`,'home-mode');card.dataset.mode=mode.id;card.append(element(document,'span','eyebrow',`0${index+1} / ${mode.icon}`),element(document,'h2','',mode.title),element(document,'p','muted',mode.description),element(document,'span','home-mode__action','Treinar agora →'));grid.append(card);
     }
     panel.querySelector('h1').id='foundation-title';
-    home.append(grid,element(document,'p','home-footer',`MOBA TRAINING · ${GAME_VERSION} · Seu progresso fica neste dispositivo.`));
+    home.append(grid,element(document,'p','home-footer',`RIFT LAB · ${GAME_VERSION} · Seu progresso fica neste dispositivo.`));
     return home;
   }
   const main = element(document, 'main', 'screen');
   main.tabIndex = -1;
   main.append(link(document, '← Voltar ao início', '/'));
   let title = 'Página não encontrada';
-  let description = 'Esse endereço não corresponde a uma tela do MOBA Training.';
-  if(route.path==='/challenges/dodge'){
+  let description = 'Esse endereço não corresponde a uma tela do RIFT LAB.';
+  if(route.path==='/journey/dodge'||route.path==='/prepare/dodge'){title=route.path==='/prepare/dodge'?'Preparação da Esquiva':'Sua jornada na rota central';description='Um percurso opcional para aprender, treinar e revisar sua execução.';} else if(route.family){title=PREMIUM_FAMILIES[route.family].label;description=PREMIUM_FAMILIES[route.family].lesson;} else if(route.path==='/challenges/dodge'){
     title='Séries de Esquiva';description='Repita um código para comparar tentativas com os mesmos lançamentos.';
   } else if(route.code){
     title='Série de Esquiva';description='30 segundos ativos, três vidas e uma sequência fixa de lançamentos.';
   } else if(route.path==='/learn/dodge'){
     title='Aprender a esquivar';description='Quatro passos na arena, no seu ritmo. Não altera seu histórico ou sua patente.';
   } else if (route.path === '/levels') {
-    title = 'Todos os níveis'; description = 'Explore quatro modalidades. Na Esquiva, o Normal segue sua avaliação; a Sobrevivência permite escolher qualquer nível.';
+    title = 'Todos os níveis'; description = 'Explore quatro modalidades. Escolha modalidades, exercícios e níveis livremente. A jornada de Esquiva sugere um ponto de partida.';
   } else if (route.path === '/diagnostics') {
     title = 'Descubra seu nível'; description = 'Uma avaliação independente para cada habilidade. Escolha uma das quatro modalidades para uma avaliação curta.';
   } else if (route.path.startsWith('/timed/reflex')) {
@@ -50,7 +51,7 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
     description = route.mode==='normal'?'Três vidas, sem limite de tempo. Encerre para analisar ou sobreviva enquanto conseguir.':'Uma vida. Tempo ilimitado. Sobreviva enquanto conseguir.';
   } else if (route.modality) {
     title = MODALITIES.find(({ id }) => id === route.modality).title;
-    description = route.modality==='dodge'?`${MAX_DODGE_LEVEL} níveis. Descubra seu ponto de partida ou escolha um desafio de Sobrevivência.`:`Nível ${route.level} · Escolha seu treino abaixo.`;
+    description = route.modality==='dodge'?`${MAX_DODGE_LEVEL} níveis. Descubra seu ponto de partida ou escolha qualquer desafio.`:`Nível ${route.level} · Escolha seu treino abaixo.`;
   } else if (route.path === '/demo') {
     title = 'Sessão de demonstração'; description = 'Demonstração técnica — sem pontuação. ESC pausa ou retoma. Sair abandona sem criar histórico.';
   } else if (route.path === '/preview') {
@@ -89,7 +90,7 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
     for (const mode of MODALITIES) {
       const card = element(document, 'section', 'mode-card');
       card.append(element(document, 'span', 'mode-icon', mode.icon), element(document, 'h2', '', mode.title), element(document, 'p', 'muted', mode.description));
-      if (route.path === '/levels'&&mode.id==='dodge'){card.append(element(document,'p','muted',`${MAX_DODGE_LEVEL} níveis · Normal por avaliação · Sobrevivência com escolha livre`),link(document,'Abrir esquiva →','/train/dodge','button primary'));}
+      if (route.path === '/levels'&&mode.id==='dodge'){card.append(element(document,'p','muted',`${MAX_DODGE_LEVEL} níveis · Normal e Sobrevivência com escolha livre`),link(document,'Abrir esquiva →','/train/dodge','button primary'));}
       else if (route.path === '/levels') {
         const levels = element(document, 'div', 'level-grid');
         for (let n = 1; n <= 10; n++) {
@@ -109,7 +110,7 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
   if (route.modality === 'dodge' && !route.mode) {
     const tutorial=link(document,'Aprender a esquivar →','/learn/dodge','button dodge-tutorial-link');main.append(tutorial,link(document,'Repetir uma sequência →','/challenges/dodge','button dodge-series-link'));
     const modes=element(document,'div','mode-grid'),normal=element(document,'section','mode-card'),survival=element(document,'section','mode-card');
-    normal.append(element(document,'span','eyebrow','SEU PERCURSO'),element(document,'h2','','Normal'),element(document,'p','muted',dodgePlacement?`Nível atual: ${dodgePlacement.level}/${MAX_DODGE_LEVEL} · 3 vidas · tempo ilimitado`:'Faça a avaliação para começar no nível indicado para você.'),link(document,dodgePlacement?`Continuar no nível ${dodgePlacement.level} →`:'Descobrir minha habilidade →',dodgePlacement?'/play/dodge/normal':'/assessment/dodge','button primary'));
+    normal.append(element(document,'span','eyebrow','SEU PERCURSO'),element(document,'h2','','Normal'),element(document,'p','muted',dodgePlacement?`Nível atual: ${dodgePlacement.level}/${MAX_DODGE_LEVEL} · 3 vidas · tempo ilimitado`:'Faça a avaliação para receber uma sugestão ou escolha seu nível livremente.'),link(document,dodgePlacement?`Continuar no nível ${dodgePlacement.level} →`:'Descobrir minha habilidade →',dodgePlacement?'/play/dodge/normal':'/assessment/dodge','button primary'));
     if(dodgePlacement){
       normal.append(link(document,'Refazer avaliação','/assessment/dodge'));const details=element(document,'details','placement-evidence');details.append(element(document,'summary','','Ver minha avaliação'),element(document,'p','muted','Estas etapas definiram seu ponto de partida. O nível atual também acompanha sua evolução nos treinos.'));
       const list=element(document,'ol');for(const result of dodgePlacement.results)list.append(element(document,'li','',`Nível ${result.level} · ${result.activeSeconds.toFixed(1)} s · ${result.verifiedDodges} esquivas · ${result.hits} impactos`));details.append(list);normal.append(details);
@@ -117,7 +118,7 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
     survival.append(element(document,'span','eyebrow','ESCOLHA SEU DESAFIO'),element(document,'h2','','Sobrevivência'),element(document,'p','muted','Uma vida, tempo ilimitado. Escolha qualquer nível para jogar.' ));
     const label=element(document,'label','','Nível '),select=element(document,'select');select.setAttribute('aria-label','Nível da Sobrevivência');
     for(let n=1;n<=MAX_DODGE_LEVEL;n++){const option=element(document,'option','',`${n} · ${n<=5?'Fundamentos':n<=10?'Intermediário':n<=15?'Avançado':'Elite'}`);option.value=String(n);select.append(option);}select.value=String(route.level??1);label.append(select);
-    const play=link(document,'Jogar Sobrevivência →',`/play/dodge/survival/${select.value}`,'button primary');select.addEventListener('change',()=>{play.href=`#/play/dodge/survival/${select.value}`;});survival.append(label,play);modes.append(normal,survival);main.append(modes);
+    const play=link(document,'Jogar Sobrevivência →',`/play/dodge/survival/${select.value}`,'button primary');select.addEventListener('change',()=>{play.href=`#/play/dodge/survival/${select.value}`;});survival.append(label,play);modes.append(normal,survival);main.append(modes);const expert=element(document,'details','mode-card expert-levels');expert.append(element(document,'summary','','Escolher qualquer nível do Normal'));const free=element(document,'div','level-grid');for(let n=1;n<=MAX_DODGE_LEVEL;n++)free.append(link(document,String(n),`/play/dodge/normal/${n}`,'level'));expert.append(element(document,'p','muted','A avaliação e a jornada são opcionais. Esta escolha não regrava sua recomendação salva.'),free);main.append(expert,link(document,'Abrir jornada recomendada','/journey/dodge','button'));
   }
   if (['/preview','/demo'].includes(route.path)||route.mode) {
     const stage = element(document, 'div', 'stage'); stage.setAttribute('aria-label', 'Visualização da arena 3D');

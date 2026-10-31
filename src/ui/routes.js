@@ -1,3 +1,4 @@
+import { PREMIUM_FAMILIES } from '../game3d/artDirection.js';
 import { parseSeriesCode } from '../training/dodge/series.js';
 import { MAX_DODGE_LEVEL } from '../training/dodge/constants.js';
 export const MODALITIES = Object.freeze([
@@ -11,8 +12,10 @@ export const NAVIGATION = Object.freeze([
   ['/dpi', 'DPI e sensibilidade'], ['/profile', 'Perfil'], ['/settings', 'Configurações'],
 ]);
 export function resolveRoute(hash = '') {
+  if(/^#?\/(assessment|learn)\/dodge\?guided=1$/.test(hash)){const route=resolveRoute(hash.replace('?guided=1',''));return {...route,guided:true};}
   const path = hash.replace(/^#/, '') || '/';
-  if (NAVIGATION.some(([route]) => route === path) || ['/challenges/dodge','/learn/dodge','/preview','/demo','/history/dodge','/records/dodge','/evolution/dodge','/achievements/dodge','/assessment/dodge','/assessment/kiting','/history/kiting','/records/kiting','/evolution/kiting','/achievements/kiting','/assessment/reflex','/history/reflex','/records/reflex','/evolution/reflex','/achievements/reflex','/practice/reflex','/timed/reflex','/practice/kiting','/timed/kiting','/practice/precision','/timed/precision','/assessment/precision','/history/precision','/records/precision','/evolution/precision','/achievements/precision'].includes(path)) return { path };
+  if (NAVIGATION.some(([route]) => route === path) || ['/journey/dodge','/prepare/dodge','/challenges/dodge','/learn/dodge','/preview','/demo','/history/dodge','/records/dodge','/evolution/dodge','/achievements/dodge','/assessment/dodge','/assessment/kiting','/history/kiting','/records/kiting','/evolution/kiting','/achievements/kiting','/assessment/reflex','/history/reflex','/records/reflex','/evolution/reflex','/achievements/reflex','/practice/reflex','/timed/reflex','/practice/kiting','/timed/kiting','/practice/precision','/timed/precision','/assessment/precision','/history/precision','/records/precision','/evolution/precision','/achievements/precision'].includes(path)) return { path };
+  if(path.startsWith('/focus/dodge/')){const family=path.slice('/focus/dodge/'.length);return Object.hasOwn(PREMIUM_FAMILIES,family)?{path,family}:{path:'/404'};}
   if(path.startsWith('/challenge/dodge/')){try{const series=parseSeriesCode(path.slice('/challenge/dodge/'.length));return {path:`/challenge/dodge/${series.code}`,code:series.code};}catch{return {path:'/404'};}}
   if(path==='/train/dodge')return {path,modality:'dodge',level:1};
   if(path==='/play/dodge/normal')return {path,modality:'dodge',mode:'normal',level:null};

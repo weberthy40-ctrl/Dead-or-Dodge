@@ -9,7 +9,7 @@ application.start().catch(() => {
   if (application.core.state.getState().lifecycle === 'disposed') return;
   const message = document.createElement('p');
   message.setAttribute('role', 'alert');
-  message.textContent = 'Não foi possível iniciar o MOBA Training. Recarregue a página.';
+  message.textContent = 'Não foi possível iniciar o RIFT LAB. Recarregue a página.';
   root.replaceChildren(message);
 });
 

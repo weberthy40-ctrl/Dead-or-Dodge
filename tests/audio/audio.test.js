@@ -8,3 +8,7 @@ it('unlocks one context, limits concurrent tones and applies mute/volume to all 
 it('degrades quietly without audio or when autoplay cannot resume',async()=>{
  const absent=createAudioManager();expect(await absent.unlock()).toBe(false);expect(absent.play()).toBe(false);const {Context}=fakeAudio();class Blocked extends Context{constructor(){super();this.resume=async()=>{throw Error('autoplay');};}}const blocked=createAudioManager({AudioContextClass:Blocked});expect(await blocked.unlock()).toBe(false);expect(blocked.play()).toBe(false);blocked.dispose();
 });
+
+it('coalesces dense warnings, adapts their pitch and respects voice and mute limits',async()=>{
+ const {Context,contexts}=fakeAudio(),audio=createAudioManager({AudioContextClass:Context});await audio.unlock();audio.setIntensity(0);expect(audio.play('cast',{variant:'arcane_bolt'})).toBe(true);const low=contexts[0].voices[0].frequency.value;for(let i=0;i<30;i++)expect(audio.play('cast')).toBe(false);expect(contexts[0].voices).toHaveLength(1);contexts[0].currentTime+=.4;audio.setIntensity(99);expect(audio.play('cast',{variant:'arcane_bolt'})).toBe(true);expect(contexts[0].voices[1].frequency.value).toBeGreaterThan(low);audio.play('dash');audio.play('flash');expect(audio.play('impact')).toBe(false);audio.setPreferences({muted:true,volume:100});expect(audio.play('flash')).toBe(false);expect(contexts[0].voices.every(v=>v.disconnect.mock.calls.length)).toBe(true);audio.dispose();
+});

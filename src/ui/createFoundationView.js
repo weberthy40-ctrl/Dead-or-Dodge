@@ -19,7 +19,7 @@ export function createFoundationView(document) {
 
   const heading = document.createElement('h1');
   heading.id = 'foundation-title';
-  heading.textContent = 'MOBA Training';
+  heading.textContent = 'RIFT LAB';
 
   const message = document.createElement('p');
   message.className = 'foundation__message';

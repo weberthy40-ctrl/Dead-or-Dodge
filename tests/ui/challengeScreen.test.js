@@ -3,8 +3,8 @@ import { it, expect, vi } from 'vitest';
 import { mountNavigation } from '../../src/ui/navigation.js';
 import { createCore } from '../../src/core/createCore.js';
 
-async function setup(save) {
-  history.replaceState(null, '', '#/challenge/dodge/dd1-linha-1A2B3C4D');
+async function setup(save,path='#/challenge/dodge/dd1-linha-1A2B3C4D') {
+  history.replaceState(null, '', path);
   const root = document.createElement('div'); document.body.append(root);
   const core = createCore(), saved = [], repository = {
     close() {},
@@ -63,4 +63,8 @@ it('abandons an unfinished series without recording a result', async () => {
     input.value = 'dd2-linha-12345678'; form.dispatchEvent(new Event('submit', { cancelable: true }));
     expect(form.textContent).toContain('Use um código'); expect(location.hash).toBe('#/challenges/dodge');
   } finally { app.dispose(); }
+});
+
+it.each(['linear','lance','hook','beam','area'])('reviews focused %s practice without recording an official or series result',async family=>{
+ const app=await setup(undefined,`#/focus/dodge/${family}`);try{play(app);await app.settle();const dialog=app.root.querySelector('dialog');expect(dialog.open).toBe(true);expect(dialog.textContent).toContain('Treino focado');expect(app.repository.saveCompletedAttempt).not.toHaveBeenCalled();expect(app.root.querySelector('.series-save-status')).toBeNull();expect(app.root.querySelector('.replay-open')).not.toBeNull();expect(localStorage.getItem('moba-training:dodge-placement:v1')).toBeNull();const id=app.frame.session.snapshot().id;[...app.root.querySelectorAll('button')].find(b=>b.textContent==='Repetir exercício').click();await app.settle();expect(app.frame.session.snapshot().id).not.toBe(id);}finally{app.dispose();}
 });

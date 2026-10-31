@@ -10,13 +10,13 @@ import { createRandom } from '../training/dodge/random.js';
 import { element,link } from './elements.js';
 import { formatDuration } from './formatters.js';
 /** Dedicated in-memory flow. No repository or official scoring is available here. */
-export function mountDodgeAssessment({screen,core,loadPreview=()=>import('../game3d/mountPreview.js')}){
+export function mountDodgeAssessment({screen,core,guided=false,loadPreview=()=>import('../game3d/mountPreview.js')}){
  const document=screen.ownerDocument,window=document.defaultView,host=element(document,'section','assessment');screen.append(host);
  const flow=createDodgeAssessmentFlow();let active=true,revision=0,round=null;
  function button(text,action){const b=element(document,'button','button',text);b.type='button';b.addEventListener('click',action);return b;}
  function cleanupRound(){revision++;if(!round)return;round.ready?.dispose();round.preview?.dispose();round.unsubscribe?.();round.rules.dispose();round.metrics.dispose();round.exercise.dispose();round.session.dispose();round=null;}
  function footer(){const actions=element(document,'div','actions');actions.append(button('Refazer avaliação',()=>{cleanupRound();flow.reset();introduction();}),link(document,'Voltar ao menu','/','button'));return actions;}
- function introduction(){host.replaceChildren(element(document,'p','lead','Cinco etapas adaptativas de até 30 segundos, com três vidas cada. A dificuldade sobe ou desce conforme seu desempenho; são necessárias pelo menos seis ameaças resolvidas para demonstrar um nível. Clique direito move; ESC pausa. Ao concluir, seu nível é salvo neste dispositivo e o Normal abre diretamente nele.'),button('Iniciar avaliação',()=>{if(flow.start())beginRound();}));}
+ function introduction(){host.replaceChildren(element(document,'p','lead','Cinco etapas adaptativas de até 30 segundos, com três vidas cada. A dificuldade sobe ou desce conforme seu desempenho; são necessárias pelo menos seis ameaças resolvidas para demonstrar um nível. Clique direito move; ESC pausa. Ao concluir, seu nível é salvo neste dispositivo e você pode preparar o treino ou abrir o Normal.'),button('Iniciar avaliação',()=>{if(flow.start())beginRound();}));}
  function showError(error){if(!active)return;core.errors.report(error,{source:'assessment.dodge'});flow.fail();cleanupRound();host.replaceChildren(element(document,'p','status-note','Não foi possível concluir a avaliação. Nenhuma conclusão foi atribuída.'),footer());}
  function summary(){
    const state=flow.snapshot();host.replaceChildren();
@@ -27,7 +27,7 @@ export function mountDodgeAssessment({screen,core,loadPreview=()=>import('../gam
      if(result.status==='recommended'){
        host.append(element(document,'p','record-value',`Nível inicial sugerido para treino: ${result.recommendedStartingLevel}/${MAX_DODGE_LEVEL}`));
        for(const r of result.perAttempt)host.append(element(document,'p','muted',`Dificuldade ${r.level}: nota diagnóstica ${r.qi}/100`));
-       const enter=()=>{try{saveDodgeAssessment(window.localStorage,state.results);window.location.hash=`/play/dodge/normal/${result.recommendedStartingLevel}`;}catch{message.textContent='Sua avaliação terminou, mas não foi possível salvar. Permita armazenamento local e tente novamente.';retry.hidden=false;}};const message=element(document,'p','status-note','Abrindo seu nível no modo Normal…'),retry=button('Salvar avaliação e iniciar Normal',enter);retry.hidden=true;host.append(message,retry);enter();
+       const enter=()=>{try{saveDodgeAssessment(window.localStorage,state.results);window.location.hash=guided?'/prepare/dodge':`/play/dodge/normal/${result.recommendedStartingLevel}`;}catch{message.textContent='Sua avaliação terminou, mas não foi possível salvar. Permita armazenamento local e tente novamente.';retry.hidden=false;}};const message=element(document,'p','status-note','Abrindo seu nível no modo Normal…'),retry=button('Salvar avaliação e iniciar Normal',enter);retry.hidden=true;host.append(message,retry);enter();
      }else host.append(element(document,'p','status-note',`Não foi possível sugerir um nível. ${result.explanation} ${result.evidenceWarnings.join(' ')}`));
      host.append(element(document,'p','status-note','A avaliação define o ponto de partida. Sua patente no perfil considera as tentativas oficiais salvas; não é o elo do LoL.'));
    }else host.append(button('Próxima tentativa',()=>{if(flow.next())beginRound();}));

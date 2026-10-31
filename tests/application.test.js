@@ -25,7 +25,7 @@ describe('fundação da aplicação', () => {
 
     expect(application.core.state.getState().lifecycle).toBe('running');
     expect(root.querySelector('main h1')?.textContent).toBe(
-      'Mecânica afiada.\nJogo diferente.',
+      'Mecânica afiada.\nPrecisão arcana.',
     );
     expect(root.querySelector('main p')?.textContent).toBe(
       'Velocidade, precisão e controle. Entre na arena e transforme cada treino em evolução.',

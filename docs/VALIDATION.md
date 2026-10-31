@@ -260,3 +260,23 @@ As fronteiras de preparação/recuperação no teste novo usam relógio de simul
 O chunk 3D permanece sob demanda, com aviso de tamanho: **717,09 kB minificados**. Dependências e fórmulas de nota/patente foram preservadas. Preferências v1 e IndexedDB v2 continuam compatíveis, com metadados opcionais de comandos; não houve apagamento ou regravação do histórico anterior.
 
 A checagem do cabeçalho de Esquiva é feita na mesma observação que confirma a sessão ativa. Entradas e capturas podem deixar a sessão avançar; verificar a aparência de partida ativa depois dessas operações produzia uma falha intermitente no GitHub quando a sessão já não estava naquele estado. A condição visual foi preservada e posicionada antes da sequência de mobilidade. O roteiro nativo de Esquiva foi repetido isoladamente e passou, com ESLint sem avisos.
+
+## RIFT LAB — protótipo vertical — 1.0.0-rc.19 — 31/10/2026
+
+Execução final de `QA_NO_SANDBOX=1 npm run check`: **exit status 0**, com **313 testes em 65 arquivos**, ESLint sem avisos, auditoria com **zero vulnerabilidades**, build e **dez suítes de navegador aprovadas**. Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux. Artefatos locais: `artifacts/qa/1793473138598/`; relatório consolidado no ambiente: `/workspace/project-review-evidence/rc19-final-check.log`.
+
+A suíte `browser-rift` verificou:
+
+- Nome público RIFT LAB, entrada da jornada, quatro etapas, preparação com teclas/preferências e cinco famílias disponíveis. O layout de preparação também ficou sem overflow em 390×844; gameplay continua destinado a computador.
+- Normal no nível 20 aberto sem avaliação e sem escrever uma recomendação falsa. A avaliação adaptativa independente e o Normal indicado continuaram aprovados em `browser-dodge`.
+- Exercícios de projétil linear, lança, gancho, feixe e área, com capturas nos quatro presets: Leve, Médio, Alto e Ultra. Materiais/avisos foram inspecionados; as runas do personagem foram reposicionadas para permanecer sobre a armadura.
+- Resultado e revisão de um exercício focado, incluindo deslocamento por Flash para sair da primeira área. Não houve resultado oficial ou de séries salvo por esses exercícios.
+- Um registro de Kiting preexistente permaneceu serializado de forma idêntica. A patente exibida permaneceu igual e nenhuma avaliação foi criada.
+
+Os testes unitários adicionais verificaram colisões reais nas cinco práticas, pausa, descarte e inelegibilidade para registro oficial; arquitetura arcana fora da área jogável; contornos essenciais nos quatro presets sem mutar os dados dos ataques; jornada guiada levando à preparação; escolha livre preservando recomendação; equipamento do Duelista em malha animada real; e limite de sinais/vozes e mute do áudio adaptativo.
+
+As demais suítes passaram: isolamento, tutorial, séries reproduzíveis, comandos de Kiting, navegação/remontagens/presets, IndexedDB e backups nativos, combate de Kiting/Precisão/Reflexos, Esquiva e produção. O build servido pelo preview exibiu rc.19, carregou a ilustração original e a preparação, iniciou uma série e descartou a arena ao sair.
+
+As capturas das práticas usam relógio de simulação controlado para reproduzir estados visuais; não constituem medição de FPS ou latência. O áudio tem testes de estado, limites e isolamento, mas a mixagem percebida precisa de escuta em hardware real. Aparência e animação foram inspecionadas em headless; aprovação artística comercial, sensação de controle, Windows/Chrome/Edge, tela cheia interativa e calibração com jogadores continuam pendentes.
+
+O chunk 3D permanece carregado sob demanda, com aviso de tamanho: **722,15 kB minificados**. Não foram adicionadas dependências, serviços pagos, alterações no banco ou migrações destrutivas. A dificuldade, as fórmulas oficiais e os códigos `dd1` foram preservados. O acesso livre ao Normal é uma mudança deliberada da direção de produto; avaliação e tutorial agora são opcionais.

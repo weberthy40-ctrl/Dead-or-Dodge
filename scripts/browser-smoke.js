@@ -4,7 +4,7 @@ import { openBrowserPage,pause } from './cdp.js';
 const page=await openBrowserPage();const measurements=[],graphics=[];let originalPreferences;
 try{
  originalPreferences=await page.evaluate("localStorage.getItem('moba-training:preferences:v1')");
- await page.send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});assert.equal(await page.evaluate("document.querySelector('h1').textContent"),'Mecânica afiada.\nJogo diferente.');
+ await page.send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});assert.equal(await page.evaluate("document.querySelector('h1').textContent"),'Mecânica afiada.\nPrecisão arcana.');
  for(const path of ['/levels','/diagnostics','/profile','/settings','/dpi']){await page.go(path);assert.equal(await page.evaluate("document.querySelectorAll('main').length"),1);assert.equal(await page.evaluate("document.documentElement.scrollWidth>innerWidth"),false,`Sem overflow em ${path}`);}
  await page.go('/levels');assert.equal(await page.evaluate("document.querySelectorAll('.level').length"),30);await page.go('/train/dodge');assert.equal(await page.evaluate("document.querySelector('select').options.length"),20);assert.equal(await page.evaluate("/Laboratório|sem pontuação/.test(document.querySelector('main').textContent)"),false);await page.go('/diagnostics');assert.equal(await page.evaluate("document.querySelectorAll('a[href^=\"#/assessment/\"]').length"),4);
  if(!process.env.QA_MENUS_ONLY){
@@ -14,7 +14,7 @@ try{
  for(let cycle=0;cycle<10;cycle++){if(process.env.QA_TRACE)console.log(`Reentry ${cycle+1}/10 (leve)`);await page.go('/preview');await page.waitFor("document.querySelectorAll('canvas').length===1&&document.querySelector('.stage').dataset.visuals==='ready'",{timeout:30000});await pause(100);const running=await page.evaluate('qaFrames.size');assert.equal(running,1);await page.go('/');await page.send('HeapProfiler.collectGarbage');measurements.push({cycle:cycle+1,frames:await page.evaluate('qaFrames.size'),canvases:await page.evaluate("document.querySelectorAll('canvas').length"),heap:(await page.send('Runtime.getHeapUsage')).usedSize});assert.equal(measurements.at(-1).frames,0);assert.equal(measurements.at(-1).canvases,0);}
  assert.ok(measurements.at(-1).heap-measurements[1].heap<5*1024*1024,'Heap após aquecimento cresce menos de 5 MiB nesta sequência.');
  await page.send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:2,mobile:false});
- for(const [quality,expected]of [['leve',1],['medio',1.2],['alto',1.5]]){
+ for(const [quality,expected]of [['leve',1],['medio',1.2],['alto',1.5],['ultra',1.75]]){
   if(process.env.QA_TRACE)console.log(`Graphics ${quality}`);await page.go('/settings');await page.evaluate(`(()=>{const form=[...document.querySelectorAll('form')].find(f=>f.textContent.includes('Qualidade gráfica'));form.querySelectorAll('select')[2].value='${quality}';form.querySelector('button[type=submit]').click();})()`);await page.go('/preview');await page.waitFor("document.querySelectorAll('canvas').length===1&&document.querySelector('.stage').dataset.visuals==='ready'",{timeout:30000});await pause(100);const dimensions=await page.evaluate("(()=>{const c=document.querySelector('canvas'),r=c.getBoundingClientRect();return {css:r.width,internal:c.width,dpr:devicePixelRatio};})()");assert.equal(dimensions.dpr,2);assert.ok(Math.abs(dimensions.internal/dimensions.css-expected)<.01);graphics.push({quality,...dimensions});await page.go('/');
  }
  }

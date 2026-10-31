@@ -1,3 +1,4 @@
+import { readDodgePlacement } from '../progression/dodgePlacement.js';
 import { createDodgeTutorial } from '../training/dodge/tutorial.js';
 import { createSession } from '../training/session.js';
 import { loadPreferences } from '../settings/preferences.js';
@@ -5,7 +6,7 @@ import { mountDodgeReady } from './dodgeReady.js';
 import { element, link } from './elements.js';
 
 /** No repository, scoring or placement writes are available to this screen. */
-export function mountDodgeTutorial({ screen, core, loadPreview = () => import('../game3d/mountPreview.js') }) {
+export function mountDodgeTutorial({ screen, core, guided=false, loadPreview = () => import('../game3d/mountPreview.js') }) {
   const document = screen.ownerDocument;
   let storage;
   try { storage = document.defaultView.localStorage; } catch { /* Defaults work without storage. */ }
@@ -29,6 +30,7 @@ export function mountDodgeTutorial({ screen, core, loadPreview = () => import('.
   actions.append(next, cast, pause, link(document, 'Sair do tutorial', '/train/dodge', 'text-link'));
   const destinations = element(document, 'div', 'tutorial-destinations'); destinations.hidden = true;
   destinations.append(link(document, 'Descobrir meu nível', '/assessment/dodge', 'button primary'), link(document, 'Escolher um desafio', '/train/dodge', 'button'));
+  if(guided){destinations.replaceChildren(link(document,'Iniciar Esquiva Normal',`/play/dodge/normal/${readDodgePlacement(storage)?.level??1}`,'button primary'),link(document,'Preparar outro treino','/prepare/dodge','button'));}
   panel.append(eyebrow, progress, title, description, status, actions, destinations);
   const stage = element(document, 'div', 'stage'); stage.setAttribute('aria-label', 'Arena do tutorial de Esquiva');
   host.append(stage, panel); screen.append(host);

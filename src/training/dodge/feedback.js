@@ -1,7 +1,9 @@
+import { premiumFamilyForVariant } from '../../game3d/artDirection.js';
 import { VARIANTS } from './projectiles.js';
 import { readonlySnapshot } from '../snapshot.js';
 
 export const DODGE_ADVICE = Object.freeze({
+  hook_linear:'Observe a linha do gancho e use um passo lateral curto para sair dela.',
   arcane_bolt: 'Espere a direção ser definida e dê um passo para o lado; não corra na mesma linha do disparo.',
   heavy_lance: 'Observe a preparação da lança e saia pela lateral da trajetória.',
   needle_burst: 'Faça ajustes laterais curtos e confira a direção de cada disparo da salva.',
@@ -44,5 +46,6 @@ export function buildDodgeFeedback(metrics, counts = {}) {
     observation = `${resolved} ameaça${resolved === 1 ? '' : 's'} resolvida${resolved === 1 ? '' : 's'} nesta tentativa.`;
     action = 'Faça outra tentativa para reunir mais evidências. Ameaças ainda na arena não contam como esquivadas.';
   }
-  return readonlySnapshot({ headline, observation, action, hits, dodged, resolved, elapsed, sample, rate: sample ? Math.round(dodged / resolved * 100) : null });
+  const practiceFamily=top?(premiumFamilyForVariant(top[0])??(['flame_circle','meteor_rain'].includes(top[0])?'area':['needle_burst','dark_orb'].includes(top[0])?'linear':null)):null;
+  return readonlySnapshot({ practiceFamily,headline, observation, action, hits, dodged, resolved, elapsed, sample, rate: sample ? Math.round(dodged / resolved * 100) : null });
 }

@@ -1,12 +1,12 @@
-# Escopo atual — 1.0.0-rc.18
+# Escopo atual — 1.0.0-rc.19
 
-Esta é a referência das regras atuais. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.18](KITING_CONTROLS_RC18.md) acrescenta controles e contexto de comparação ao Kiting. A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
+Esta é a referência das regras atuais. A direção vigente é [RIFT LAB](RIFT_LAB_VISION.md); a [rc.19](RIFT_VERTICAL_RC19.md) integra o protótipo vertical de Esquiva, com jornada opcional e acesso livre ao Normal. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.18](KITING_CONTROLS_RC18.md) acrescenta controles e contexto de comparação ao Kiting. A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
 
-O produto é um treinador web em português para **computador, teclado e mouse**. Menus podem se adaptar a telas estreitas, mas gameplay mobile não faz parte do suporte. A aplicação é estática, sem instalação para jogar no site publicado.
+O RIFT LAB é um treinador web em português para **computador, teclado e mouse**. Menus podem se adaptar a telas estreitas, mas gameplay mobile não faz parte do suporte. A aplicação é estática, sem instalação para jogar no site publicado.
 
 ## Modalidades
 
-- **Esquiva:** 20 níveis, nove famílias de habilidades, movimento por clique direito, Flash, dash e parada. Normal: três vidas, tempo ilimitado, avaliação salva obrigatória e avanço por desempenho. Sobrevivência: uma vida, tempo ilimitado e escolha livre entre os 20 níveis. Preparação parada e início manual; câmera ampla antes do início e próxima durante a tentativa. O resultado oferece revisão dos últimos seis segundos, somente em memória.
+- **Esquiva:** 20 níveis, nove famílias de habilidades, movimento por clique direito, Flash, dash e parada. Normal: três vidas, tempo ilimitado, escolha livre entre os 20 níveis e percurso recomendado com avaliação opcional e avanço por desempenho. Sobrevivência: uma vida, tempo ilimitado e escolha livre entre os 20 níveis. Preparação parada e início manual; câmera ampla antes do início e próxima durante a tentativa. O resultado oferece revisão dos últimos seis segundos, somente em memória.
 - **Precisão:** dez níveis, desafio misto com grupos de alvos fixos e móveis e sequências ocasionais por prioridade. O grupo muda somente após todos os alvos serem acertados. Cliques errados, ordem e atrasos são medidos. Treino oficial dura 60 segundos ativos.
 - **Kiting:** dez níveis, combate em ondas, perseguidores e atiradores, vida, dano, abates e reposição. Comandos selecionáveis antes da rodada: Clique direto (esquerdo ataca, A mostra alcance), A + clique (A prepara, esquerdo confirma) e A imediato (A no cursor). Cada ordem executa um ataque contra um inimigo elegível no alcance, próximo do cursor. Nos modos com A, sem inimigo elegível o personagem caminha ao ponto indicado até poder atacar uma vez. Direito move e cancela a aproximação; direito, parada e Flash podem cancelar a preparação. Tempos de ataque e velocidades variam com o nível. Treino oficial dura até 60 segundos ativos ou a derrota.
 - **Reflexos:** dez níveis, desafio integrado Q/W/E/R, Espaço, F/J e mouse. Verde: esquerdo; azul: direito; vermelho: não responder. Texto e símbolos acompanham as cores. Treino oficial dura 60 segundos ativos; prática técnica tem 22 sinais. Variantes antigas continuam legíveis no histórico.
@@ -25,7 +25,7 @@ Histórico e conquistas usam IndexedDB local; preferências e avaliação salva 
 
 ## Aprendizado e análise de Esquiva
 
-O menu oferece **Aprender a esquivar**, um tutorial opcional: caminhar, usar o Flash configurado, usar o dash configurado e sair de uma área anunciada. O tutorial usa o movimento e a colisão reais, permite pausa e repetição após impacto e não tem acesso a pontuação, repositório de tentativas ou avaliação salva. Não substitui a avaliação para entrar no Normal.
+O menu oferece **Aprender a esquivar**, um tutorial opcional: caminhar, usar o Flash configurado, usar o dash configurado e sair de uma área anunciada. O tutorial usa o movimento e a colisão reais, permite pausa e repetição após impacto e não tem acesso a pontuação, repositório de tentativas ou avaliação salva. No percurso guiado, leva ao Normal sugerido; a avaliação e o tutorial são opcionais.
 
 A arena de Esquiva tem botão de câmera livre/travada, equivalente a Y; Espaço continua centralizando sem alterar o modo. Enquadramento, velocidade, cooldowns, hitboxes, habilidades e curva de dificuldade oficiais permanecem iguais.
 
@@ -51,8 +51,18 @@ Novas métricas e pontuações de Kiting registram `controlProfile`; registros a
 
 ## Controles, qualidade e limites
 
-Controles completos estão no README. Os presets Leve/Médio/Alto afetam renderização, não dificuldade. Contraste, texto ampliado, redução de movimento e áudio opcional já existem. DPI é uma ferramenta auxiliar: depende de distância física medida e suporte a entrada bruta; não configura o mouse nem reproduz a sensibilidade do LoL.
+Controles completos estão no README. Os presets Leve/Médio/Alto/Ultra afetam renderização, não dificuldade. Contraste, texto ampliado, redução de movimento e áudio opcional já existem. DPI é uma ferramenta auxiliar: depende de distância física medida e suporte a entrada bruta; não configura o mouse nem reproduz a sensibilidade do LoL.
 
 Arena, habilidades, velocidades e patentes são adaptações próprias. As referências históricas não comprovam equivalência ao patch atual do LoL. Modelos KayKit têm origem e licenças CC0 incluídas; demais recursos estão documentados em `public/assets`.
 
 Windows/Chrome/Edge, tela cheia interativa, latência percebida, desempenho em hardware real e calibração com jogadores continuam exigindo validação manual. Evidências executadas ficam em [VALIDATION.md](VALIDATION.md), separadas de requisitos ainda pendentes.
+
+## Protótipo vertical RIFT LAB
+
+Identidade grafite, azul, prata e violeta; Duelista Arcano com base animada KayKit CC0 adaptada, runas e espada estética; arquitetura original fora da área jogável, rota de pedra e vegetação. Efeitos prioritários de projétil, lança, gancho, feixe e área mantêm os contornos essenciais em todos os presets. Leve/Médio/Alto/Ultra afetam renderização e ornamentos, sem alterar hitboxes, controles, tempo ou nota.
+
+A entrada oferece `/journey/dodge`, com avaliação → preparação → tutorial → Normal → relatório e revisão. `/prepare/dodge` mostra teclas e preferências e oferece cinco treinos focados. A jornada pode ser pulada em qualquer etapa. `/play/dodge/normal/N` respeita o nível pedido; a URL sem N usa a recomendação ou nível 1. Escolha livre não regrava a avaliação. O avanço confirmado só vale no nível da recomendação e mantém os critérios anteriores.
+
+Os cinco exercícios `/focus/dodge/{linear,lance,hook,beam,area}` usam três vidas e até 30 segundos ativos, com métricas, orientação e revisão em memória. Não acessam o salvamento oficial, não concedem patente e não escrevem avaliação. O gancho está disponível nesse recorte focado; pesos, dificuldade e famílias do diretor oficial e as sequências `dd1` permanecem preservados.
+
+Sinais sonoros originais de preparação, impacto e mobilidade usam o AudioContext existente, com no máximo quatro vozes e preparações espaçadas em pelo menos 350 ms. A pressão muda a altura do sinal, sem ampliar o volume geral; mute e volume continuam disponíveis. Não há música contínua, serviços pagos, backend ou mudanças no schema de dados.
