@@ -1,0 +1,165 @@
+import { mountChallengeHub } from './challengeHub.js';
+import { mountChallengeScreen } from './challengeScreen.js';
+import { mountDodgeFeedback } from './dodgeFeedback.js';
+import { mountDodgeTutorial } from './dodgeTutorialScreen.js';
+import { mountDodgeReady } from './dodgeReady.js';
+import { mountArenaInputGuard } from '../game3d/arenaInputGuard.js';
+import { readDodgePlacement,advanceDodgePlacement } from '../progression/dodgePlacement.js';
+import { createDodgeReplay } from '../training/dodge/replay.js';
+import { mountDodgeReplayReview } from './dodgeReplayReview.js';
+import { mountProfile } from './profileScreen.js';
+import { mountAudioFeedback } from '../audio/feedback.js';
+import { mountBackup } from './backupScreen.js';
+import { loadPreferences,applyInterfacePreferences } from '../settings/preferences.js';
+import { mountPreferences } from './preferencesScreen.js';
+import { mountPrecisionAssessment } from './precisionAssessmentScreen.js';
+import { mountKiting } from './kitingScreen.js';
+import { mountKitingAssessment } from './kitingAssessmentScreen.js';
+import { mountReflex } from './reflexScreen.js';
+import { mountReflexAssessment } from './reflexAssessmentScreen.js';
+import { mountMouseTools } from './mouseScreen.js';
+import { NAVIGATION, resolveRoute } from './routes.js';
+import { element, link } from './elements.js';
+import { createAttemptRepository } from '../persistence/attemptRepository.js';
+import { mountPrecisionPractice } from './precisionPracticeScreen.js';
+import { mountDodgeAssessment } from './dodgeAssessmentScreen.js';
+import { mountDodgeData } from './dodgeDataScreens.js';
+import { mountSaveAttempt } from './saveAttempt.js';
+import { createDodgeTelemetry } from '../training/dodge/telemetry.js';
+import { calculateDodgeScore } from '../training/dodge/score.js';
+import { createDodgeMode } from '../training/dodge/mode.js';
+import { createTechnicalDodge } from '../training/dodge/technicalDodge.js';
+import { createRandom } from '../training/dodge/random.js';
+import { createSession } from '../training/session.js';
+import { mountSettings } from './settingsScreen.js';
+import { createScreen } from './screens.js';
+
+/** Hash routing provides native back/forward without server rewrite rules. */
+export function mountNavigation({ root, core, window = root.ownerDocument.defaultView,
+  loadPreview = () => import('../game3d/mountPreview.js'), attemptRepository }) {
+  const document = root.ownerDocument;let preferencesStorage;try{preferencesStorage=window.localStorage;}catch{preferencesStorage=null;}applyInterfacePreferences(document,loadPreferences(preferencesStorage));
+  let indexedDB;try{indexedDB=window.indexedDB;}catch{indexedDB=null;}
+  const repository = attemptRepository ?? createAttemptRepository({indexedDB});const audio=mountAudioFeedback({root,core,preferences:loadPreferences(preferencesStorage)});
+  const shell = element(document, 'div', 'app-shell');
+  const skip = link(document, 'Pular para o conteúdo', '/', 'skip-link');
+  skip.href = '#content';
+  skip.addEventListener('click', skipContent);
+  const header = element(document, 'header', 'site-header');
+  header.append(link(document, 'M / MOBA TRAINING', '/', 'brand'));
+  const nav = element(document, 'nav', 'site-nav'); nav.setAttribute('aria-label', 'Navegação principal');
+  for (const [path, label] of NAVIGATION) nav.append(link(document, label, path, 'nav-link'));
+  header.append(nav);
+  const host = element(document, 'div', 'screen-host'); host.id = 'content';
+  shell.append(skip, header, host); root.append(shell);
+  let active = true;
+  let revision = 0;
+  let preview;
+  let session;
+  let exercise;
+  let rules;
+  let telemetry;
+  let stopArenaContext,readyPanel;
+  let dodgeRecording,dodgeReview,stopDodgeRecording;
+  let cleanupScreen = () => {};
+  function skipContent(event) { event.preventDefault(); host.querySelector('h1')?.focus(); }
+  function render(focus = true) {
+    const renderRevision = ++revision;audio.stopAll();stopArenaContext?.();stopArenaContext=undefined;
+    dodgeReview?.dispose();dodgeReview=undefined;stopDodgeRecording?.();stopDodgeRecording=undefined;dodgeRecording?.clear();dodgeRecording=undefined;
+    readyPanel?.dispose();readyPanel=undefined;preview?.dispose(); preview = undefined; cleanupScreen(); cleanupScreen = () => {}; rules?.dispose(); rules=undefined; telemetry?.dispose();telemetry=undefined; session?.dispose(); session = undefined; exercise?.dispose(); exercise = undefined;
+    let route = resolveRoute(window.location.hash);const dodgePlacement=readDodgePlacement(preferencesStorage);
+    if(route.mode==='normal'){route=dodgePlacement?{...route,level:dodgePlacement.level,path:`/play/dodge/normal/${dodgePlacement.level}`}:{path:'/assessment/dodge'};if(window.location.hash!==`#${route.path}`)window.history.replaceState(null,'',`#${route.path}`);}
+    const isDodge = Boolean(route.mode);
+    const screen = createScreen(document, route,{dodgePlacement});
+    const training=/^\/(play|practice|timed|assessment|learn|challenge|dodge-tech|demo|preview)(\/|$)/.test(route.path);
+    shell.classList.toggle('is-training',training);shell.dataset.session='idle';
+    screen.classList.toggle('training-screen',training);screen.classList.toggle('dodge-screen',isDodge||route.path==='/assessment/dodge');screen.classList.toggle('tutorial-screen',route.path==='/learn/dodge');screen.classList.toggle('profile-screen',route.path==='/profile');
+    host.replaceChildren(screen);
+    if(training)stopArenaContext=mountArenaInputGuard(screen);
+    for (const item of nav.children) {
+      if (item.hash === `#${route.path}` || (route.modality && item.hash === '#/levels')) item.setAttribute('aria-current', 'page');
+      else item.removeAttribute('aria-current');
+    }
+    const heading = screen.querySelector('h1'); heading.tabIndex = -1; if (focus) heading.focus();
+    core.events.emit('navigation:changed', Object.freeze(route));
+    if(route.path==='/challenges/dodge'){const hub=mountChallengeHub(screen,{repository});cleanupScreen=()=>hub.dispose();}
+    if(route.code){const challenge=mountChallengeScreen({screen,core,repository,code:route.code,loadPreview});cleanupScreen=()=>challenge.dispose();}
+    if(route.path==='/learn/dodge'){const tutorial=mountDodgeTutorial({screen,core,loadPreview});cleanupScreen=()=>tutorial.dispose();}
+    if(route.path==='/dpi'){const mouse=mountMouseTools(screen);cleanupScreen=()=>mouse.dispose();}
+    if (route.path === '/settings'){mountSettings(screen);mountPreferences(screen,{onChange:p=>audio.setPreferences(p)});const backup=mountBackup({screen,repository});cleanupScreen=()=>backup.dispose();}
+    if(route.path==='/practice/reflex'||route.path.startsWith('/timed/reflex')){const training=mountReflex({screen,core,loadPreview,repository,timed:route.path.startsWith('/timed/reflex'),initialLevel:route.level??1});cleanupScreen=()=>training.dispose();}
+    if(route.path==='/practice/kiting'||route.path.startsWith('/timed/kiting')){const training=mountKiting({screen,core,loadPreview,repository,timed:route.path.startsWith('/timed/kiting'),initialLevel:route.level??1});cleanupScreen=()=>training.dispose();}
+    if(route.path==='/practice/precision'||route.path.startsWith('/timed/precision')){const practice=mountPrecisionPractice({screen,core,loadPreview,timed:route.path.startsWith('/timed/precision'),initialLevel:route.level??1,repository});cleanupScreen=()=>practice.dispose();}
+    if(route.path==='/assessment/reflex'){const assessment=mountReflexAssessment({screen,core,loadPreview});cleanupScreen=()=>assessment.dispose();}
+    if(route.path==='/assessment/kiting'){const assessment=mountKitingAssessment({screen,core,loadPreview});cleanupScreen=()=>assessment.dispose();}
+    if(route.path==='/assessment/precision'){const assessment=mountPrecisionAssessment({screen,core,loadPreview});cleanupScreen=()=>assessment.dispose();}
+    if(route.path==='/assessment/dodge'){const assessment=mountDodgeAssessment({screen,core,loadPreview});cleanupScreen=()=>assessment.dispose();}
+    if(route.path==='/profile'){const profile=mountProfile({screen,repository});cleanupScreen=()=>profile.dispose();}
+    if(/^\/(history|records|evolution|achievements)\/(dodge|precision|kiting|reflex)$/.test(route.path)){
+      const modalities=[route.path.split('/')[2]];
+      const views=modalities.map(modality=>mountDodgeData({screen,repository,modality,kind:route.path.split('/')[1]}));cleanupScreen=()=>views.forEach(view=>view.dispose());
+    }
+    let updateSession = () => {};
+    if (route.path === '/demo' || isDodge) {
+      session = createSession({countdown:isDodge?0:3,events:core.events,timeLimit:null,metadata:{type:route.mode??(isDodge?'dodge-technical':'demonstration'),level:route.level??1}});
+      if(route.mode)rules=createDodgeMode({session,mode:route.mode,level:route.level,events:core.events});
+      if(route.mode){telemetry=createDodgeTelemetry({session,mode:route.mode,level:route.level,events:core.events});dodgeRecording=createDodgeReplay();stopDodgeRecording=core.events.on('dodge:damage',event=>{if(event.attemptId===session.snapshot().id)dodgeRecording?.mark({time:session.snapshot().elapsed,variant:event.variant??'fast',id:event.attackId});});}
+      if(isDodge)exercise=createTechnicalDodge({level:route.level??1,attemptId:session.snapshot().id,mode:route.mode??'technical',isRunning:()=>session?.snapshot().state==='running',canSpawn:()=>true,getVitals:()=>({lives:rules?.snapshot().lives??null,maxLives:rules?.snapshot().initialLives??null}),events:core.events,rng:createRandom(window.crypto.getRandomValues(new Uint32Array(1))[0])});
+      const hud = element(document,'div','session-hud');
+      const status = element(document,'p','session-status',''); status.setAttribute('aria-live','off');
+      const pause = element(document,'button','button','Pausar');pause.type='button';
+      const exit = link(document,'Sair / abandonar','/','button dodge-exit');
+      const analyze=element(document,'button','button dodge-analyze','Encerrar e analisar');analyze.type='button';analyze.hidden=!rules;analyze.addEventListener('click',()=>{rules?.complete();telemetry?.step(0);updateSession();});
+      pause.addEventListener('click',()=>{if(session?.snapshot().state==='paused'){session.resume();screen.querySelector('.stage canvas')?.focus({preventScroll:true});}else session?.pause();});
+      updateSession = () => {if(!session)return; const s=session.snapshot();status.textContent=s.state==='countdown'?`Começar em ${Math.ceil(s.countdown-s.preparation)}`:`${s.state==='paused'?'Pausado':s.state==='completed'?'Concluído':s.state==='abandoned'?'Abandonado':s.state==='idle'?'Pronto para iniciar':'Em execução'} · ${s.elapsed.toFixed(1)} s`;pause.textContent=s.state==='paused'?'Retomar':'Pausar';pause.disabled=s.state==='idle';analyze.disabled=s.state==='idle';};
+      const diagnostics=element(document,'p','status-note','');
+      const updateClock=updateSession;updateSession=()=>{updateClock();if(exercise){const s=exercise.snapshot();diagnostics.textContent=`Diagnóstico em memória: ${s.shots} disparos · ${s.impacts} impactos`;}};
+      const replay=element(document,'button','button primary','Jogar novamente');replay.type='button';replay.hidden=true;replay.addEventListener('click',()=>render());
+      const resultMetrics=element(document,'dialog','result-metrics','');resultMetrics.hidden=true;resultMetrics.setAttribute('aria-labelledby','dodge-result-title');resultMetrics.addEventListener('cancel',event=>event.preventDefault());let shownResult=false;
+      const outcome=element(document,'p','result-message','');outcome.setAttribute('aria-live','polite');
+      const updateTechnical=updateSession;updateSession=()=>{
+        updateTechnical();if(!rules)return;rules.evaluate();const current=rules.snapshot();
+        diagnostics.textContent=`Vidas: ${current.lives}/${current.initialLives} · Tempo sobrevivido: ${current.elapsed.toFixed(1)} s`;
+        if(telemetry?.isFinal()&&!shownResult){
+          shownResult=true;resultMetrics.hidden=false;const m=telemetry.snapshot(),score=calculateDodgeScore(m),resultContent=element(document,'div','result-content');
+          const title=element(document,'h2','result-title',current.outcome==='victory'?'Vitória!':current.outcome==='defeat'?'Fim de treino — Derrota':current.outcome==='error'?'Treino interrompido':'Treino encerrado');title.id='dodge-result-title';resultMetrics.append(title,resultContent);
+          mountDodgeFeedback({container:resultContent,metrics:m,recording:dodgeRecording.snapshot()});
+          const details=element(document,'details','result-details');details.append(element(document,'summary','','Detalhes e pontuação'));resultContent.append(details);
+          details.append(element(document,'h2','','Métricas da tentativa'),element(document,'p','muted',`Tempo ativo: ${m.elapsedActiveSeconds.toFixed(1)} s · Ameaças: ${m.threatsQualified} · Evitadas: ${m.threatsDodged} · Impactos válidos: ${m.validHits} · Distância: ${m.totalDistanceMoved.toFixed(1)} u · Pendentes: ${m.threatsUnresolved}`));
+          details.append(element(document,'h2','',score.status==='scored'?`Pontuação desta tentativa: ${score.score}/100`:'Pontuação indisponível nesta tentativa'));
+          if(score.status==='scored')for(const c of score.components)details.append(element(document,'p','muted',`${c.name}: ${c.contribution.toFixed(1)} / ${c.weight}`));
+          else details.append(element(document,'p','status-note',score.reasons.join(' ')));
+          if(score.status==='scored')mountSaveAttempt({container:resultContent,repository,metrics:m,score,core,isActive:()=>active&&revision===renderRevision,onSaved:record=>{try{const next=advanceDodgePlacement(preferencesStorage,record);if(next&&next.level>record.level&&active&&revision===renderRevision){replay.textContent=`Jogar nível ${next.level} →`;resultContent.append(element(document,'p','level-unlocked',`Nível ${record.level} superado. Seu próximo desafio é o nível ${next.level}.`));}}catch(error){core.errors.report(error,{source:'dodge.progression'});if(active&&revision===renderRevision)resultContent.append(element(document,'p','status-note','Treino salvo. Não foi possível atualizar seu próximo nível.'));}}});
+          if(score.consistencyAvailable===false)resultContent.append(element(document,'p','status-note','Consistência ainda sem amostra suficiente; esta parcela não concede pontos.'));
+          if(score.smallSample)resultContent.append(element(document,'p','status-note','Amostra pequena de ameaças resolvidas.'));
+          if(score.capFactor<1)resultContent.append(element(document,'p','status-note','Nota limitada pela exposição curta antes da derrota.'));
+          resultContent.append(element(document,'p','status-note','Fórmula provisória. A nota desta tentativa não representa seu nível de habilidade.'));
+          dodgeReview=mountDodgeReplayReview({container:resultContent,recording:dodgeRecording.snapshot(),loadPreview});
+          const actions=element(document,'div','result-actions');replay.hidden=false;replay.autofocus=true;exit.textContent='Voltar ao menu';actions.append(replay,exit);resultMetrics.append(actions);hud.hidden=true;
+          if(typeof resultMetrics.showModal==='function')resultMetrics.showModal();else resultMetrics.setAttribute('open','');replay.focus();
+
+        }
+        replay.hidden=!current.outcome;pause.hidden=Boolean(current.outcome);
+        outcome.textContent=current.outcome?`${current.outcome==='victory'?'Vitória':current.outcome==='defeat'?'Derrota':current.outcome==='error'?'Treino interrompido por erro':'Abandonado'} · ${current.elapsed.toFixed(1)} s · ${current.lives} vidas restantes`:'';
+      };
+      hud.append(status,pause,analyze,exit,diagnostics,replay,outcome);screen.insertBefore(hud,screen.querySelector('.stage'));screen.append(resultMetrics);
+      const unsubscribe=core.events.on('session:changed',updateSession);cleanupScreen=()=>{unsubscribe();if(resultMetrics.open)resultMetrics.close?.();};if(isDodge)readyPanel=mountDodgeReady({screen,stage:screen.querySelector('.stage'),session,title:`${route.mode==='normal'?'Normal':'Sobrevivência'} · Nível ${route.level}`,onStart:()=>updateSession()});else session.start();updateSession();
+    }
+    if (['/preview','/demo'].includes(route.path)||isDodge) loadPreview().then(({ mountPreview }) => {
+      if (!active || revision !== renderRevision) return;
+      preview = mountPreview(screen.querySelector('.stage'), { events:core.events,session, exercise, onStep:(dt,from,to)=>{telemetry?.step(dt,from,to);if(dt>0&&dodgeRecording&&exercise){const move=preview?.movement?.snapshot();dodgeRecording.capture(exercise.snapshot(),to,move?.angle??0);}}, onTick:updateSession, onError: error => { core.errors.report(error, { source: 'preview' }); if(rules)rules.fail();else session?.finish('error'); } });
+    }).catch(error => {
+      if (!active || revision !== renderRevision) return;
+      core.errors.report(error, { source: 'preview.load' });
+      const message = element(document, 'p', 'status-note', 'A prévia 3D não pôde ser carregada. Volte ao menu e tente novamente.');
+      message.setAttribute('role', 'alert'); screen.append(message);
+    });
+  }
+  const stopSessionUI=core.events.on('session:changed',s=>{shell.dataset.session=s.state;});
+  window.addEventListener('hashchange', render);
+  render(false);
+  return { dispose() {
+    if (!active) return;
+    active = false; revision++;readyPanel?.dispose();stopArenaContext?.();dodgeReview?.dispose();stopDodgeRecording?.();dodgeRecording?.clear(); preview?.dispose(); cleanupScreen(); rules?.dispose();telemetry?.dispose(); session?.dispose(); exercise?.dispose();
+    stopSessionUI();audio.dispose();repository.close();window.removeEventListener('hashchange', render); skip.removeEventListener('click', skipContent); shell.remove();
+  } };
+}
