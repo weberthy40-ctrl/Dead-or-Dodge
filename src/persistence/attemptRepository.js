@@ -1,3 +1,4 @@
+import { kitingControlProfile } from '../settings/kitingControls.js';
 import { readBackupData,mergeBackupData } from './backup.js';
 import { reconcileKitingAchievements } from './kitingAchievements.js';
 import { StorageError,validateAttemptRecord,canonicalRecord } from './attemptRecord.js';
@@ -51,27 +52,29 @@ export function createAttemptRepository({indexedDB=globalThis.indexedDB,database
     request.onsuccess=()=>{record=request.result;};transaction.oncomplete=()=>resolve(record?readonlySnapshot(record):null);
     transaction.onabort=()=>reject(transaction.error??new StorageError('Leitura cancelada.'));
   });}
-  async function listCompletedAttempts({mode,level,variant,modality='dodge',offset=0,limit=10}={}){
+  async function listCompletedAttempts({mode,level,variant,controlProfile,modality='dodge',offset=0,limit=10}={}){
     if(!Number.isInteger(offset)||offset<0||!Number.isInteger(limit)||limit<1||limit>100)throw new StorageError('Paginação inválida.','INVALID_QUERY');
+    if(controlProfile!==undefined&&(modality!=='kiting'||kitingControlProfile(controlProfile)!==controlProfile))throw new StorageError('Filtro de comandos inválido.','INVALID_QUERY');
     const database=await open();return new Promise((resolve,reject)=>{
       const transaction=database.transaction('attempts','readonly'),request=transaction.objectStore('attempts').index('completedAt').openCursor(null,'prev');
       const items=[];let matched=0,invalid=0;
       request.onsuccess=()=>{const cursor=request.result;if(!cursor)return;const r=cursor.value;
         try{validateAttemptRecord(r);}catch{invalid++;cursor.continue();return;}
-        if(r.modality===modality&&(!mode||r.mode===mode)&&(!variant||r.variant===variant)&&(level===undefined||r.level===level)){if(matched++>=offset&&items.length<limit)items.push(readonlySnapshot(r));}
+        if(r.modality===modality&&(!mode||r.mode===mode)&&(!variant||r.variant===variant)&&(level===undefined||r.level===level)&&(controlProfile===undefined||kitingControlProfile(r.metrics.controlProfile)===controlProfile)){if(matched++>=offset&&items.length<limit)items.push(readonlySnapshot(r));}
         cursor.continue();
       };
       transaction.oncomplete=()=>resolve(Object.freeze({items:Object.freeze(items),total:matched,invalid,offset,limit}));
       transaction.onabort=()=>reject(transaction.error??new StorageError('Consulta cancelada.'));
     });
   }
-  async function scanCompletedAttempts({mode,level,variant,modality='dodge',onRecord}={}){
+  async function scanCompletedAttempts({mode,level,variant,controlProfile,modality='dodge',onRecord}={}){
     if(typeof onRecord!=='function')throw new StorageError('Consumidor de leitura obrigatório.','INVALID_QUERY');
+    if(controlProfile!==undefined&&(modality!=='kiting'||kitingControlProfile(controlProfile)!==controlProfile))throw new StorageError('Filtro de comandos inválido.','INVALID_QUERY');
     const database=await open();return new Promise((resolve,reject)=>{
       const transaction=database.transaction('attempts','readonly'),request=transaction.objectStore('attempts').index('completedAt').openCursor(null,'prev');let total=0,invalid=0,failure;
       request.onsuccess=()=>{const cursor=request.result;if(!cursor)return;const record=cursor.value;
         try{validateAttemptRecord(record);}catch{invalid++;cursor.continue();return;}
-        if(record.modality===modality&&(!mode||record.mode===mode)&&(!variant||record.variant===variant)&&(level===undefined||record.level===level)){
+        if(record.modality===modality&&(!mode||record.mode===mode)&&(!variant||record.variant===variant)&&(level===undefined||record.level===level)&&(controlProfile===undefined||kitingControlProfile(record.metrics.controlProfile)===controlProfile)){
           try{onRecord(readonlySnapshot(record));total++;}catch(error){failure=error;transaction.abort();return;}
         }cursor.continue();
       };

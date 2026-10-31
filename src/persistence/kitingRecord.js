@@ -1,3 +1,4 @@
+import { kitingControlProfile } from '../settings/kitingControls.js';
 import { GAME_VERSION } from '../app/version.js';
 import { readonlySnapshot } from '../training/snapshot.js';
 import { kitingDifficulty } from '../training/kiting/difficulty.js';
@@ -6,6 +7,7 @@ import { KITING_SCORING_VERSION } from '../training/kiting/score.js';
 import { StorageError,assertRecordData } from './storageError.js';
 export function validateKitingRecord(r){
  assertRecordData(r);const m=r?.metrics,s=r?.score;if(m?.kills!==undefined&&(!Number.isInteger(m.kills)||m.kills<0||m.kills>m.hits))throw new StorageError('Abates inválidos.','INVALID_RECORD');
+ try{if(kitingControlProfile(m?.controlProfile)!==kitingControlProfile(s?.controlProfile))throw new TypeError();}catch{throw new StorageError('Comandos de Kiting incompatíveis.','INVALID_RECORD');}
  let config;try{config=kitingDifficulty(r.level,r.variant,{legacy:r.variant==='waves'&&!m?.config?.configVersion,combatVersion:m?.config?.configVersion==='kiting-combat-v3'?3:4});if(m?.config&&!Object.hasOwn(m.config,'targetCount')){config={...config};delete config.targetCount;}}catch{throw new StorageError('Contexto de Kiting inválido.','INVALID_RECORD');}
  const terminal=m&&(m.endReason==='completed'&&m.elapsedActiveSeconds===60||r.variant==='combat'&&m.endReason==='defeat'&&m.defeated===true&&m.health===0&&Number.isFinite(m.elapsedActiveSeconds)&&m.elapsedActiveSeconds>0&&m.elapsedActiveSeconds<=60);
  if(r.variant==='combat'&&(!m||m.maxHealth!==100||!Number.isFinite(m.health)||m.health<0||m.health>100||m.damageTaken!==100-m.health||!Number.isInteger(m.damageEvents)||m.damageEvents<0||!Number.isInteger(m.dodgedShots)||m.dodgedShots<0||((m.damageTaken===0)!==(m.damageEvents===0))||m.defeated!==(m.health===0)||m.endReason==='completed'&&m.defeated))throw new StorageError('Vida ou dano incompatíveis.','INVALID_RECORD');

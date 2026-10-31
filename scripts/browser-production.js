@@ -19,6 +19,10 @@ try {
   assert.equal(await page.evaluate("document.querySelector('.app-shell').dataset.session"),'running');
   await page.go('/');
   assert.equal(await page.evaluate("document.querySelectorAll('canvas').length"),0);
+  await page.go('/timed/kiting/1');
+  await page.waitFor("document.querySelector('.stage')?.dataset.visuals==='ready'",{timeout:45000});
+  assert.equal(await page.evaluate("document.querySelector('select[aria-label=\"Comandos de Kiting\"]').options.length"),3);
+  await page.go('/');
   assert.deepEqual(page.errors, []);
   console.log(JSON.stringify({ status: 'PASSOU', version: GAME_VERSION, productionAssets: true, sceneDisposed: true }, null, 2));
 } finally { await page.close(); }

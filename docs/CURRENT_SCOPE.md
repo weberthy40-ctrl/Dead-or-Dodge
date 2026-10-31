@@ -1,6 +1,6 @@
-# Escopo atual — 1.0.0-rc.17
+# Escopo atual — 1.0.0-rc.18
 
-Esta é a referência das regras atuais. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
+Esta é a referência das regras atuais. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.18](KITING_CONTROLS_RC18.md) acrescenta controles e contexto de comparação ao Kiting. A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
 
 O produto é um treinador web em português para **computador, teclado e mouse**. Menus podem se adaptar a telas estreitas, mas gameplay mobile não faz parte do suporte. A aplicação é estática, sem instalação para jogar no site publicado.
 
@@ -8,7 +8,7 @@ O produto é um treinador web em português para **computador, teclado e mouse**
 
 - **Esquiva:** 20 níveis, nove famílias de habilidades, movimento por clique direito, Flash, dash e parada. Normal: três vidas, tempo ilimitado, avaliação salva obrigatória e avanço por desempenho. Sobrevivência: uma vida, tempo ilimitado e escolha livre entre os 20 níveis. Preparação parada e início manual; câmera ampla antes do início e próxima durante a tentativa. O resultado oferece revisão dos últimos seis segundos, somente em memória.
 - **Precisão:** dez níveis, desafio misto com grupos de alvos fixos e móveis e sequências ocasionais por prioridade. O grupo muda somente após todos os alvos serem acertados. Cliques errados, ordem e atrasos são medidos. Treino oficial dura 60 segundos ativos.
-- **Kiting:** dez níveis, combate em ondas, perseguidores e atiradores, vida, dano, abates e reposição. Um clique esquerdo solicita ataque contra um inimigo elegível no alcance, próximo do cursor; direito move e pode cancelar a preparação. A apenas mostra alcance. Tempos de ataque e velocidades variam com o nível. Treino oficial dura até 60 segundos ativos ou a derrota.
+- **Kiting:** dez níveis, combate em ondas, perseguidores e atiradores, vida, dano, abates e reposição. Comandos selecionáveis antes da rodada: Clique direto (esquerdo ataca, A mostra alcance), A + clique (A prepara, esquerdo confirma) e A imediato (A no cursor). Cada ordem executa um ataque contra um inimigo elegível no alcance, próximo do cursor. Nos modos com A, sem inimigo elegível o personagem caminha ao ponto indicado até poder atacar uma vez. Direito move e cancela a aproximação; direito, parada e Flash podem cancelar a preparação. Tempos de ataque e velocidades variam com o nível. Treino oficial dura até 60 segundos ativos ou a derrota.
 - **Reflexos:** dez níveis, desafio integrado Q/W/E/R, Espaço, F/J e mouse. Verde: esquerdo; azul: direito; vermelho: não responder. Texto e símbolos acompanham as cores. Treino oficial dura 60 segundos ativos; prática técnica tem 22 sinais. Variantes antigas continuam legíveis no histórico.
 
 Pausa e perda de foco não contam como tempo ativo; o retorno requer retomada explícita. Abandonar não gera conclusão oficial. Encerrar e analisar na Esquiva pode salvar uma tentativa com amostra válida.
@@ -42,6 +42,12 @@ As respostas do jogador, contatos, duração até derrota e exposição às amea
 As últimas 20 tentativas de cada código aparecem na comparação, com tempo, impactos e ameaças evitadas/resolvidas. A orientação sugere repetir ou variar, com ressalva quando a exposição é pequena. O menu permite retomar cinco códigos recentes, abrir um código informado ou criar outro. Não há placar entre pessoas nem equivalência competitiva.
 
 Tentativas concluídas ou encerradas por derrota são salvas como `dodge-challenge`, fora das quatro modalidades que compõem patentes e dos recordes de Normal/Sobrevivência. Abandono ou erro não registra resultado. As séries usam o IndexedDB existente e entram no backup por mesclagem, sem mudar o schema do banco ou sobrescrever treinos anteriores. Backups antigos continuam aceitos; backups contendo séries precisam de rc.17 ou superior.
+
+## Comandos e comparação de Kiting
+
+A escolha fica salva nas preferências e é congelada durante a rodada. Repetição automática de tecla e comandos emitidos durante a recuperação não enfileiram ataques. Sem cursor conhecido dentro da arena, A imediato não emite ordem. Pausa, perda de foco e saída descartam ordens de aproximação e confirmação pendentes. A indicação das fases explica quando mover cancela a preparação e quando o disparo já ocorreu. As avaliações guiadas existentes continuam usando Clique direto.
+
+Novas métricas e pontuações de Kiting registram `controlProfile`; registros antigos sem o campo são interpretados como Clique direto, sem regravação. Histórico, recordes e evolução têm filtro de comandos; recordes e amostras de três sessões da estimativa de nível são separados por comandos. Em cada nível/calibração, a amostra completa do comando usado mais recentemente é preferida; uma amostra anterior continua válida até haver três sessões do novo comando. Patentes gerais continuam agregando sessões oficiais, usando a mesma fórmula e tempos físicos. Não há equivalência declarada com os comandos ou o patch atual do LoL.
 
 ## Controles, qualidade e limites
 

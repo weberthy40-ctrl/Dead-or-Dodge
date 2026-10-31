@@ -6,7 +6,23 @@ import { attachPreviewControls } from '../../src/game3d/previewControls.js';
 import { createMovement } from '../../src/training/movement.js';
 import { createCameraController,edgeIntent,ZOOM } from '../../src/game3d/cameraController.js';
 import { createSession } from '../../src/training/session.js';
+import { createCore } from '../../src/core/createCore.js';
+import { createKitingPractice } from '../../src/training/kiting/practice.js';
 import { loadCameraSettings,saveCameraSettings,normalizeCameraSettings } from '../../src/settings/cameraSettings.js';
+it.each(['attack-click','quick-attack'])('scopes A to arena input, drops armed orders on pause/blur and ignores repeats (%s)',profile=>{
+ vi.spyOn(document,'hidden','get').mockReturnValue(false);let callback,clock=0;vi.spyOn(window.performance,'now').mockImplementation(()=>clock);
+ const core=createCore(),container=document.createElement('div'),canvas=document.createElement('canvas');container.append(canvas);document.body.append(container);vi.spyOn(canvas,'getBoundingClientRect').mockReturnValue({left:0,top:0,width:800,height:500});
+ const session=createSession({countdown:0,events:core.events});session.start();let controls;
+ const exercise=createKitingPractice({variant:'static',controlProfile:profile,playerPosition:()=>controls?.movement.snapshot().position??{x:0,z:0}});exercise.start();
+ const visuals={sync(){},setRangeVisible:vi.fn()};controls=attachPreviewControls({container,renderer:{domElement:canvas},camera:new THREE.PerspectiveCamera(44,1.6,.1,160),character:{setPose(){}},session,exercise,events:core.events,visuals,requestFrame:fn=>{callback=fn;return 1;},cancelFrame(){},render(){}});callback(clock);
+ const press=(extra={})=>window.dispatchEvent(new KeyboardEvent('keydown',{key:'a',code:'KeyA',...extra})),click=()=>canvas.dispatchEvent(new MouseEvent('pointerdown',{button:0,clientX:500,clientY:300}));
+ press();if(profile==='quick-attack')expect(exercise.snapshot().accepted).toBe(0);session.pause();session.resume();click();expect(exercise.snapshot().accepted).toBe(0);
+ canvas.dispatchEvent(new MouseEvent('pointermove',{clientX:500,clientY:300}));press({repeat:true});press({ctrlKey:true});press({altKey:true});press({metaKey:true});click();expect(exercise.snapshot().accepted).toBe(0);
+ const input=document.createElement('input');container.append(input);input.dispatchEvent(new KeyboardEvent('keydown',{key:'a',code:'KeyA',bubbles:true}));click();expect(exercise.snapshot().accepted).toBe(0);
+ press();if(profile==='attack-click')click();expect(exercise.snapshot().accepted).toBe(1);for(let i=0;i<25;i++){clock+=50;callback(clock);}expect(exercise.snapshot().hits).toBe(1);
+ if(profile==='attack-click')press();window.dispatchEvent(new Event('blur'));session.resume();click();expect(exercise.snapshot().accepted).toBe(1);expect(visuals.setRangeVisible).toHaveBeenLastCalledWith(false);
+ controls.dispose();session.dispose();core.dispose();container.remove();
+});
 describe('movement and camera',()=>{
   it('moves independently of frame rate, redirects and stops exactly',()=>{
     const a=createMovement(),b=createMovement();a.moveTo({x:7,z:0});b.moveTo({x:7,z:0});

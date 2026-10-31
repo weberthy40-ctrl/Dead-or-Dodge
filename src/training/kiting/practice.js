@@ -1,3 +1,4 @@
+import { kitingControlProfile } from '../../settings/kitingControls.js';
 import { createEnemyCombat } from './enemyCombat.js';
 import { readonlySnapshot } from '../snapshot.js';
 import { safeDelta,MOVEMENT_SPEED } from '../movement.js';
@@ -6,7 +7,8 @@ import { createRandom } from '../../core/random.js';
 import { kitingDifficulty } from './difficulty.js';
 export function inAttackRange(player,target,range){return Boolean(isInsideArena(player)&&isInsideArena(target)&&Number.isFinite(range)&&range>0&&Math.hypot(player.x-target.x,player.z-target.z)<=range+1e-10);}
 /** Manual attacks select one eligible enemy. The locked target cannot change during a windup. */
-export function createKitingPractice({variant='static',level=1,rng=createRandom(),isRunning=()=>true,playerPosition=()=>({x:0,z:0}),events,attemptId='technical',duration=60,damageEnabled=true}={}){
+export function createKitingPractice({variant='static',level=1,controlProfile='direct',rng=createRandom(),isRunning=()=>true,playerPosition=()=>({x:0,z:0}),events,attemptId='technical',duration=60,damageEnabled=true}={}){
+ controlProfile=kitingControlProfile(controlProfile);
  const config=kitingDifficulty(level,variant);if(![20,60].includes(duration))throw new TypeError('Invalid duration.');
  const waves=['waves','combat'].includes(variant),combat=variant==='combat'?createEnemyCombat({config,events,attemptId,damageEnabled}):null;
  let state='idle',phase='ready',selectedId=null,lockedId=null,time=0,remaining=0,cooldown=0,sequence=0,lastAction='Pronto',messageTime=0;
@@ -15,7 +17,7 @@ export function createKitingPractice({variant='static',level=1,rng=createRandom(
  let accepted=0,shots=0,hits=0,cancellations=0,distance=0,between=0,cycles=0,lastHit=null,lastAttack=null,histogram=Array(duration===60?6:4).fill(0);
  const running=()=>state==='active'&&isRunning();
  const targetData=e=>({id:e.id,enemyKind:e.enemyKind??'melee',attackPhase:e.attackPhase??'ready',attackRemaining:e.attackRemaining??0,position:e.position,radius:config.targetRadius,health:e.health,maxHealth:e.maxHealth});
- const snapshot=()=>readonlySnapshot({kind:'kiting',...(combat?.snapshot()??{}),state,variant,level,config,selected:Boolean(selectedId),selectedTargetId:selectedId,phase,cooldown,windupRemaining:remaining,lastAction,elapsed:time,target:targetData(enemies.find(e=>e.id===(lockedId??selectedId))??enemies[0]??{id:'none',position:playerPosition(),health:0,maxHealth:config.maxHealth??3}),targets:enemies.map(targetData),lastAttack,kills,wave:Math.max(1,kills+1),accepted,shots,hits,cancellations,totalDistanceMoved:distance,rhythmOpportunities:Math.max(0,hits-1),rhythmCycles:cycles,histogram,spacing:null});
+ const snapshot=()=>readonlySnapshot({kind:'kiting',controlProfile,...(combat?.snapshot()??{}),state,variant,level,config,selected:Boolean(selectedId),selectedTargetId:selectedId,phase,cooldown,windupRemaining:remaining,lastAction,elapsed:time,target:targetData(enemies.find(e=>e.id===(lockedId??selectedId))??enemies[0]??{id:'none',position:playerPosition(),health:0,maxHealth:config.maxHealth??3}),targets:enemies.map(targetData),lastAttack,kills,wave:Math.max(1,kills+1),accepted,shots,hits,cancellations,totalDistanceMoved:distance,rhythmOpportunities:Math.max(0,hits-1),rhythmCycles:cycles,histogram,spacing:null});
  function notify(type,enemy){events?.emit(`kiting:${type}`,readonlySnapshot({attemptId,attackId:`attack-${sequence}`,time,variant,level,targetId:enemy?.id??lockedId,position:enemy?{...enemy.position}:undefined}));}
  function cancel(reason){if(phase!=='windup')return false;phase='recovery';remaining=0;cooldown=config.cancelCooldown;cancellations++;lastAction=reason;messageTime=.5;notify('cancelled');lockedId=null;return true;}
  function random(){const n=rng();if(!Number.isFinite(n)||n<0||n>=1)throw new TypeError('Invalid kiting RNG.');return n;}

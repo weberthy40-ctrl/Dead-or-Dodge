@@ -240,3 +240,21 @@ Backups anteriores continuam aceitos. Backups com séries precisam de rc.17 ou p
 Tela cheia ficou explicitamente **NÃO VERIFICADA** no headless. Não foram medidos FPS/latência em hardware real ou transferência de habilidade para o LoL. Pressão, conforto e adequação dos cenários exigem calibração humana. CI remoto, publicação e integração ao client não foram executados.
 
 Instalação limpa final da rc.17: `npm ci --cache /workspace/.cache/npm --no-fund` concluiu com exit status 0 e 151 pacotes. Dependências fixadas permaneceram iguais às da rc.16.
+
+## Comandos de Kiting — 1.0.0-rc.18 — 31/10/2026
+
+Execução final de `QA_NO_SANDBOX=1 npm run check`: **exit status 0**. Node 24.19.0, npm 11.9.0, Chromium 154 e Linux. Logs e capturas locais em `artifacts/qa/1793463571438/`, ignorados pelo Git; relatório consolidado preservado no ambiente em `/workspace/project-review-evidence/rc18-full-check5.log`.
+
+- **297 testes em 63 arquivos**, ESLint sem avisos e auditoria completa com **zero vulnerabilidades**.
+- **Nove suítes de navegador aprovadas**, incluindo a nova `browser-kiting-controls`; as oito suítes anteriores permaneceram aprovadas.
+- Clique direto, A + clique e A imediato receberam entrada nativa de teclado/mouse. Foram verificados um ataque por ordem, ausência de fila durante recuperação, descarte da confirmação na pausa e seleção bloqueada durante a rodada.
+- A preferência sobreviveu ao recarregamento real. Uma derrota no nível 10 foi salva com `quick-attack` tanto nas métricas quanto na pontuação.
+- IndexedDB nativo filtrou leitura paginada e varredura por comandos. A interface exibiu histórico e evolução filtrados e dois recordes separados para o mesmo exercício/nível com comandos diferentes.
+- Um registro sem os campos novos permaneceu serializado de forma idêntica após salvar, exportar e mesclar o backup em outro banco. O backup do cenário continha três tentativas, incluindo a derrota real.
+- Testes de movimento/simulação verificaram aproximação para um único disparo, cancelamento de ordens, foco/modificadores, compatibilidade das preferências, validação de metadados e separação das amostras de três sessões.
+- Capturas dos três comandos foram inspecionadas. A indicação das fases foi posicionada acima da barra de ataque, sem ficar sob os controles.
+- O build compilado exibiu `1.0.0-rc.18`, carregou a arena e as três opções de Kiting, iniciou uma série de Esquiva e descartou a cena ao voltar.
+
+As fronteiras de preparação/recuperação no teste novo usam relógio de simulação controlado para que a duração de uma chamada do DevTools não faça a recarga terminar antes da próxima entrada. A derrota, o recarregamento e o salvamento usam tempo normal. Isso não mede latência percebida, FPS em GPU física ou habilidade humana. Tela cheia interativa, Windows/Chrome/Edge e calibração com jogadores continuam pendentes.
+
+O chunk 3D permanece sob demanda, com aviso de tamanho: **717,09 kB minificados**. Dependências e fórmulas de nota/patente foram preservadas. Preferências v1 e IndexedDB v2 continuam compatíveis, com metadados opcionais de comandos; não houve apagamento ou regravação do histórico anterior.

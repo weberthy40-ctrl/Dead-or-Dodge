@@ -394,3 +394,7 @@ h1[tabindex='-1']:focus { outline:none; }
 .series-recent { margin-top:1.25rem; }
 .series-recent-item { padding:.75rem 0;border-top:1px solid #b5d3d526;font-size:.85rem; }
 .series-recent-item .muted { margin:.4rem 0;font-size:.75rem; }
+
+.training-screen .kiting-phase{position:fixed;bottom:7.7rem;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 2rem);text-align:center;pointer-events:none;border-radius:.35rem;margin:0;padding:.4rem .7rem;border-left:3px solid #84d8c7;color:#c9f2e9;background:#162e35;font-size:.9rem}
+.kiting-phase[data-phase="windup"]{border-color:#efc36c;color:#fce5b5}
+.kiting-phase[data-phase="recovery"]{border-color:#87bbf5;color:#d5e8ff}
