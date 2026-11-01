@@ -26,7 +26,8 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
   main.append(link(document, '← Voltar ao início', '/'));
   let title = 'Página não encontrada';
   let description = 'Esse endereço não corresponde a uma tela do RIFT LAB.';
-  if(route.path==='/journey/dodge'||route.path==='/prepare/dodge'){title=route.path==='/prepare/dodge'?'Preparação da Esquiva':'Sua jornada na rota central';description='Um percurso opcional para aprender, treinar e revisar sua execução.';} else if(route.family){title=PREMIUM_FAMILIES[route.family].label;description=PREMIUM_FAMILIES[route.family].lesson;} else if(route.path==='/challenges/dodge'){
+  if(route.path==='/check/dodge'){title='Verificar fluidez da Esquiva';description='Compare presets no seu computador, com um cenário fixo e sem alterar seu progresso.';}
+  else if(route.path==='/journey/dodge'||route.path==='/prepare/dodge'){title=route.path==='/prepare/dodge'?'Preparação da Esquiva':'Sua jornada na rota central';description='Um percurso opcional para aprender, treinar e revisar sua execução.';} else if(route.family){title=PREMIUM_FAMILIES[route.family].label;description=PREMIUM_FAMILIES[route.family].lesson;} else if(route.path==='/challenges/dodge'){
     title='Séries de Esquiva';description='Repita um código para comparar tentativas com os mesmos lançamentos.';
   } else if(route.code){
     title='Série de Esquiva';description='30 segundos ativos, três vidas e uma sequência fixa de lançamentos.';

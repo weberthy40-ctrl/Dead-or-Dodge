@@ -12,8 +12,8 @@ export function addArcaneAttire(root){
  const rune=part(chest,new THREE.OctahedronGeometry(.065),emissive,'duelist-heart-rune',[0,.09,.415]);rune.scale.y=1.3;
  for(const side of [-1,1]){const line=part(chest,new THREE.BoxGeometry(.025,.19,.018),emissive,'duelist-blue-inlay',[side*.13,.09,.385]);line.rotation.z=side*-.32;}
  const visor=part(head,new THREE.BoxGeometry(.18,.025,.018),emissive,'duelist-visor-rune',[0,.35,.56]);
- const cape=root.getObjectByName('Knight_Cape'),capeRest=cape?.rotation.x??0;
+ const cape=root.getObjectByName('Knight_Cape'),capeRest=cape?.rotation.x??0,capeRoll=cape?.rotation.z??0;
  let phase=0;
  root.userData.identity='arcane-duelist';
- return {update({moving,reducedMotion,ability},dt){phase+=Math.max(0,dt);emissive.emissiveIntensity=ability?2:1.4;if(cape&&!reducedMotion)cape.rotation.x=capeRest+(moving?Math.sin(phase*9)*.035:0);visor.visible=true;},details};
+ return {update({moving,reducedMotion,ability,runWeight=moving?1:0,turn=0},dt){phase+=Math.max(0,dt);emissive.emissiveIntensity=ability?2:1.4;if(cape){cape.rotation.x=capeRest+(reducedMotion?0:Math.sin(phase*9)*.035*runWeight);cape.rotation.z=capeRoll+(reducedMotion?0:turn*.3);}visor.visible=true;},details};
 }

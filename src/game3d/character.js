@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { ARENA,isInsideArena } from './spatial.js';
 import { createAnimatedModel } from './sceneAssets.js';
 import { disposeObject } from './resources.js';
+import { createDuelistMotion } from './duelistMotion.js';
 /** Original articulated sentinel; geometry is cosmetic and does not define the collision radius. */
 export function createCharacter({position=ARENA.center,rotation=0,scale=1,reducedMotion=false,enemy=false,caster=false,ranged=false,dodge=false}={}){
  if(!isInsideArena(position)||!Number.isFinite(rotation)||!Number.isFinite(scale)||scale<=0)throw new TypeError('Invalid character pose.');
@@ -41,6 +42,7 @@ export function createCharacter({position=ARENA.center,rotation=0,scale=1,reduce
  const health=new THREE.Sprite(new THREE.SpriteMaterial({map:barTexture,depthTest:false}));health.position.set(0,dodge?3.95:2.95,0);health.scale.set(1.5,.18,1);health.raycast=()=>{};group.add(health);health.visible=!caster;
  if(caster){const staff=new THREE.Mesh(new THREE.CylinderGeometry(.055,.08,2.5,12),gold.clone()),gem=new THREE.Mesh(new THREE.IcosahedronGeometry(.26,1),glow.clone());staff.position.set(.85,1.2,.3);gem.position.set(.85,2.55,.3);staff.castShadow=true;group.add(staff,gem);}
  let disposed=false,phase=0,animated=null,ability=null,abilityRemaining=0;
+ const locomotion=dodge&&!enemy?createDuelistMotion():null;
  function setPose({x,z},angle=group.rotation.y){if(![x,z,angle].every(Number.isFinite))throw new TypeError('Invalid visual pose.');group.position.set(x,ARENA.groundY,z);group.rotation.y=angle;}
  setPose(position,rotation);group.scale.setScalar(scale);
  return {group,setPose,onAbility(type){ability=type;abilityRemaining=.22;},setAccent(hex){const color=new THREE.Color(hex);group.traverse(node=>{if(!node.isMesh||!node.material?.color)return;const m=node.material;if(!m.userData.baseTint)m.userData.baseTint=m.color.clone();m.color.copy(m.userData.baseTint).lerp(color,.38);});ring.material.color.copy(color);},setHealthVisible(visible){health.visible=Boolean(visible)&&!caster;},setHealth(ratio){health.scale.x=1.5*Math.max(.02,Math.min(1,Number.isFinite(ratio)?ratio:1));},applyAssets(assets){
@@ -50,8 +52,8 @@ export function createCharacter({position=ARENA.center,rotation=0,scale=1,reduce
  },animate({moving=false,attackPhase,state='running'}={},delta=0){
   if(disposed||state==='paused'||delta<=0&&['running','countdown'].includes(state))return;
   abilityRemaining=Math.max(0,abilityRemaining-delta);if(!abilityRemaining)ability=null;
-  if(reducedMotion||!['running','countdown'].includes(state)){for(const limb of limbs)limb.mesh.rotation.x=0;return;}
-  if(animated){animated.root.rotation.x=ability==='dash'?-.14*Math.sin(Math.PI*abilityRemaining/.22):0;animated.update({moving,attackPhase,reducedMotion,ability},delta);return;}
+  if(reducedMotion||!['running','countdown'].includes(state)){for(const limb of limbs)limb.mesh.rotation.x=0;if(animated){animated.root.rotation.x=animated.root.rotation.z=0;}return;}
+  if(animated){const motion=locomotion?.update({angle:group.rotation.y,moving,ability,reducedMotion},delta);animated.root.rotation.x=motion?.pitch??(ability==='dash'?-.14*Math.sin(Math.PI*abilityRemaining/.22):0);animated.root.rotation.z=motion?.roll??0;animated.update({moving,attackPhase,reducedMotion,ability,locomotion:motion},delta);return;}
   phase+=Math.min(.1,Math.max(0,delta))*13;
   for(const limb of limbs)limb.mesh.rotation.x=(moving?Math.sin(phase)*.44*limb.side*(limb.arm?-1:1):0)+(limb.arm?(attackPhase==='windup'?-.75:attackPhase==='recovery'?.25:0):0);
  },dispose(){if(disposed)return;disposed=true;animated?.dispose();disposeObject(group);barTexture.dispose();limbs.length=0;}};

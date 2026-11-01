@@ -7,7 +7,7 @@ import { loadPreferences } from '../settings/preferences.js';
 import { loadCameraSettings } from '../settings/cameraSettings.js';
 import { ARENA,DODGE_ARENA } from './spatial.js';
 import { CAMERA,DODGE_CAMERA,DODGE_ZOOM } from './cameraConfig.js';
-export function attachPreviewControls({container,renderer,camera,character,render,onError=()=>{},session,exercise,visuals,feedback,events,onTick=()=>{},onStep=()=>{},onVisualStep=()=>{},requestFrame,cancelFrame}) {
+export function attachPreviewControls({container,renderer,camera,character,render,onError=()=>{},session,exercise,visuals,feedback,events,onTick=()=>{},onStep=()=>{},onVisualStep=()=>{},onFrame,onDiagnosticInput,requestFrame,cancelFrame}) {
   const document=container.ownerDocument, window=document.defaultView, canvas=renderer.domElement;
   const world=!['precision','reflex'].includes(exercise?.kind),dodge=Boolean(exercise)&&!['precision','reflex','kiting'].includes(exercise.kind);
   const arena=dodge?DODGE_ARENA:ARENA,viewConfig=dodge?DODGE_CAMERA:CAMERA;
@@ -45,7 +45,7 @@ export function attachPreviewControls({container,renderer,camera,character,rende
     const instructionText=exercise?.kind==='reflex'?'TECLADO / MOUSE · responda ao sinal   /   ESC · pausar':precision?'ESQUERDO · acertar os alvos   /   ESC · pausar':`DIREITO · mover   /   ${exercise?.kind==='kiting'?`${KITING_CONTROLS[kiting.snapshot().profile].label.toUpperCase()}${kiting.snapshot().armed?' · CLIQUE PARA CONFIRMAR':''}   /   `:''}Y · câmera ${view.locked?'travada':'livre'}   /   ESPAÇO · centralizar   /   RODA · zoom   /   ESC · pausar`;
     if(status.textContent!==instructionText)status.textContent=instructionText;
   }
-  function toggleCamera(){controller.toggle();if(dodge&&controller.snapshot().locked)controller.recenter(movement.snapshot().position);pose();render();}
+  function toggleCamera(){controller.toggle();if(dodge&&controller.snapshot().locked)controller.recenter(movement.snapshot().position);onDiagnosticInput?.('camera');pose();render();}
   function tick(time) {
     try { tickFrame(time); } catch(error) { api.dispose(); onError(error); }
   }
@@ -64,7 +64,7 @@ export function attachPreviewControls({container,renderer,camera,character,rende
       const nextPosition=movement.snapshot().position;character.animate?.({moving:Math.hypot(nextPosition.x-previous.x,nextPosition.z-previous.z)>1e-6,attackPhase:exercise?.kind==='kiting'?exercise.snapshot().phase:null,state:session?.snapshot().state??'running'},activeDelta);feedback?.update(activeDelta);onVisualStep(activeDelta);onStep(activeDelta,previous,nextPosition);if(disposed)return;onTick();if(disposed)return;
     }
     if(dodge){pose(0,schedule,frameDelta);visuals?.sync?.(exercise?.snapshot(),movement.snapshot().position);}
-    if(schedule){if(wasAnimating||!session||['running','countdown'].includes(session.snapshot().state))render();frame=requestFrame(tick);}
+    if(schedule){if(wasAnimating||!session||['running','countdown'].includes(session.snapshot().state)){render();onFrame?.();}if(!disposed)frame=requestFrame(tick);}
   }
 
   function start() {if(!disposed&&!document.hidden&&frame===null){last=null;frame=requestFrame(tick);}}
@@ -96,19 +96,19 @@ export function attachPreviewControls({container,renderer,camera,character,rende
     }
     if(exercise?.kind==='precision'||exercise?.kind==='reflex')return;
     kiting?.cancel({stop:false});range();
-    if((displayedAim?(point.set(displayedAim.x,arena.groundY,displayedAim.z),true):raycaster.ray.intersectPlane(plane,point))&&movement.moveTo({x:Math.max(arena.bounds.minX,Math.min(arena.bounds.maxX,point.x)),z:Math.max(arena.bounds.minZ,Math.min(arena.bounds.maxZ,point.z))})){exercise?.moveCommand?.();if(dodge)feedback?.move?.(movement.snapshot().target,0x79e4a1);else feedback?.move?.(movement.snapshot().target);if(dodge){pose();render();}onTick();}
+    if((displayedAim?(point.set(displayedAim.x,arena.groundY,displayedAim.z),true):raycaster.ray.intersectPlane(plane,point))&&movement.moveTo({x:Math.max(arena.bounds.minX,Math.min(arena.bounds.maxX,point.x)),z:Math.max(arena.bounds.minZ,Math.min(arena.bounds.maxZ,point.z))})){exercise?.moveCommand?.();onDiagnosticInput?.('move');if(dodge)feedback?.move?.(movement.snapshot().target,0x79e4a1);else feedback?.move?.(movement.snapshot().target);if(dodge){pose();render();}onTick();}
   }
   function context(event){event.preventDefault();}
   function leave(){pan={x:0,z:0};pointerKnown=false;}
   function wheel(event) {if(event.ctrlKey||event.metaKey||event.altKey||!Number.isFinite(event.deltaY)||event.deltaY===0)return;event.preventDefault();controller.wheel(event.deltaY,event.deltaMode);pose();render();}
   function key(event) {
     if(event.repeat||event.ctrlKey||event.altKey||event.metaKey||editable(event.target))return;
-    if(world&&event.code==='Space'){event.preventDefault();pan={x:0,z:0};controller.recenter(movement.snapshot().position);pose();render();return;}
+    if(world&&event.code==='Space'){event.preventDefault();pan={x:0,z:0};controller.recenter(movement.snapshot().position);onDiagnosticInput?.('recenter');pose();render();return;}
     if(world&&running()&&[bindings.stopKey,bindings.flashKey,...(dodge?[bindings.dashKey]:[])].includes(event.code)){
       event.preventDefault();let visibleFlashAim=null;if(dodge&&event.code!==bindings.stopKey&&pointerKnown){raycaster.setFromCamera(cursor,camera);if(raycaster.ray.intersectPlane(plane,point))visibleFlashAim={x:point.x,z:point.z};}flush();if(disposed||!running())return;
-      if(event.code===bindings.stopKey){kiting?.cancel();range();movement.stop();exercise?.moveCommand?.();}
-      else if(event.code===bindings.dashKey&&dodge){if(dashRemaining<=0){const current=movement.snapshot(),aim=visibleFlashAim??current.target??{x:current.position.x+Math.sin(current.angle)*DODGE_DASH_RANGE,z:current.position.z+Math.cos(current.angle)*DODGE_DASH_RANGE};if(movement.dash(aim,{continueMoving:true})){dashRemaining=5;character.onAbility?.('dash');events?.emit('player:ability',{attemptId:session?.snapshot().id,type:'dash',position:current.position});exercise?.moveCommand?.();exercise?.onControl?.({type:'dash'});}}}
-      else if(flashRemaining<=0){kiting?.cancel();range();pose();raycaster.setFromCamera(cursor,camera);const current=movement.snapshot(),aim=visibleFlashAim??(pointerKnown&&raycaster.ray.intersectPlane(plane,point)?{x:point.x,z:point.z}:current.target??{x:current.position.x+Math.sin(current.angle)*4,z:current.position.z+Math.cos(current.angle)*4});if(movement.blink(aim,4,{continueMoving:dodge})){flashRemaining=15;character.onAbility?.('flash');events?.emit('player:ability',{attemptId:session?.snapshot().id,type:'flash',position:movement.snapshot().position});if(dodge&&controller.snapshot().locked)controller.recenter(movement.snapshot().position);exercise?.moveCommand?.();feedback?.move?.(movement.snapshot().position);exercise?.onControl?.({type:'flash'});}}
+      if(event.code===bindings.stopKey){kiting?.cancel();range();movement.stop();exercise?.moveCommand?.();onDiagnosticInput?.('stop');}
+      else if(event.code===bindings.dashKey&&dodge){if(dashRemaining<=0){const current=movement.snapshot(),aim=visibleFlashAim??current.target??{x:current.position.x+Math.sin(current.angle)*DODGE_DASH_RANGE,z:current.position.z+Math.cos(current.angle)*DODGE_DASH_RANGE};if(movement.dash(aim,{continueMoving:true})){dashRemaining=5;character.onAbility?.('dash');events?.emit('player:ability',{attemptId:session?.snapshot().id,type:'dash',position:current.position});exercise?.moveCommand?.();exercise?.onControl?.({type:'dash'});onDiagnosticInput?.('dash');}}}
+      else if(flashRemaining<=0){kiting?.cancel();range();pose();raycaster.setFromCamera(cursor,camera);const current=movement.snapshot(),aim=visibleFlashAim??(pointerKnown&&raycaster.ray.intersectPlane(plane,point)?{x:point.x,z:point.z}:current.target??{x:current.position.x+Math.sin(current.angle)*4,z:current.position.z+Math.cos(current.angle)*4});if(movement.blink(aim,4,{continueMoving:dodge})){flashRemaining=15;character.onAbility?.('flash');events?.emit('player:ability',{attemptId:session?.snapshot().id,type:'flash',position:movement.snapshot().position});if(dodge&&controller.snapshot().locked)controller.recenter(movement.snapshot().position);exercise?.moveCommand?.();feedback?.move?.(movement.snapshot().position);exercise?.onControl?.({type:'flash'});onDiagnosticInput?.('flash');}}
       pose();visuals?.sync?.(exercise?.snapshot(),movement.snapshot().position);onTick();if(!disposed)render();return;
     }
     if(event.code==='KeyA'&&kiting&&running()){event.preventDefault();flush();if(disposed||!running())return;pose();let aim=null;if(pointerKnown){raycaster.setFromCamera(cursor,camera);if(raycaster.ray.intersectPlane(plane,point))aim={x:point.x,z:point.z};}kiting.pressA(aim);range();pose();visuals.sync(exercise.snapshot(),movement.snapshot().position);if(!disposed)render();return;}

@@ -1,6 +1,6 @@
 # RIFT LAB
 
-Plataforma de treinamento de mecânicas de MOBA para navegador em computador. **Versão candidata 1.0.0-rc.20:** confirmação visual dos impactos, revisão do instante final e objetivos com comparação entre rodadas nos exercícios de Esquiva. Veja [esta entrega](docs/IMPACTS_COACHING_RC20.md), [a direção aprovada](docs/RIFT_LAB_VISION.md), [o protótipo da rc.19](docs/RIFT_VERTICAL_RC19.md) e [as regras atuais](docs/CURRENT_SCOPE.md). A base animada do personagem e parte do cenário são KayKit CC0, adaptados com materiais, runas e estruturas originais. Testes manuais de hardware e calibração com jogadores continuam pendentes.
+Plataforma de treinamento de mecânicas de MOBA para navegador em computador. **Versão candidata 1.0.0-rc.21:** verificação de fluidez no computador, apresentação refinada do Duelista e dos avisos e relatos opcionais para calibrar as práticas. Veja [esta entrega](docs/QUALITY_RC21.md), [a direção aprovada](docs/RIFT_LAB_VISION.md), [o protótipo da rc.19](docs/RIFT_VERTICAL_RC19.md) e [as regras atuais](docs/CURRENT_SCOPE.md). A base animada do personagem e parte do cenário são KayKit CC0, adaptados com materiais, runas e estruturas originais. Testes manuais de hardware e calibração com jogadores continuam pendentes.
 
 - **Esquiva 2.0:** rota central arcana, Duelista animado e quatro presets. A jornada opcional integra avaliação, preparação, tutorial, Normal, resultados e revisão. Normal e Sobrevivência permitem escolher os 20 níveis; Normal tem três vidas e Sobrevivência, uma. A recomendação salva mantém seu avanço por desempenho, sem restringir a escolha livre. Flash, dash e parada são configuráveis; Y alterna a câmera. As nove famílias oficiais e suas regras foram preservadas; projétil, lança, gancho, feixe e área têm exercícios focados de 30 s com revisão em memória. O objetivo é concluir a rodada e evitar oito ameaças; ao repetir, o resultado compara a rodada anterior nesta tela.
 - **Séries de Esquiva:** três temas de até 30 s e três vidas, com habilidades, horários e posições fixados por código. Repita, consulte suas tentativas e retome códigos recentes; resultados separados das patentes e do avanço no Normal, incluídos no backup.
@@ -61,6 +61,8 @@ Pausa, preparação e tempo sem foco não contam como tempo ativo. A retomada ap
 
 ## Dados e configurações
 
+A preparação da Esquiva oferece **Verificar fluidez no meu computador**: cenário fixo com os quatro presets, FPS, p95, carregamento e comparação em memória. A qualidade escolhida ali não altera sua preferência. Relatórios de fluidez e relatos opcionais das práticas podem ser baixados por ação explícita; ficam separados do backup e não são enviados a servidor. Metas e sensação dos controles ainda dependem de calibração humana.
+
 O progresso fica no **IndexedDB deste navegador e origem**. Trocar de porta, navegador ou dispositivo cria outro contexto de dados. No resultado, “Salvo neste dispositivo” aparece somente após commit; falhas oferecem nova tentativa com o mesmo ID.
 
 Configurações inclui câmera, contraste, tamanho do texto, redução de movimento, qualidade gráfica, áudio e backup. Leve/Médio/Alto/Ultra mudam somente renderização; qualidade é aplicada na próxima abertura da arena. Áudio é original, opcional e liberado por gesto do usuário.
@@ -76,7 +78,7 @@ npm ci
 npm run check
 ```
 
-O comando executa testes unitários, lint, auditoria, build e dez suítes reais de navegador. O runner inicia e encerra servidor e navegador automaticamente, usa portas livres e cria contextos temporários isolados para cada página de QA. Os dados do jogador não entram nesses contextos.
+O comando executa testes unitários, lint, auditoria, build e onze suítes reais de navegador. O runner inicia e encerra servidor e navegador automaticamente, usa portas livres e cria contextos temporários isolados para cada página de QA. Os dados do jogador não entram nesses contextos.
 
 No ambiente de nuvem já isolado desta tarefa, use `QA_NO_SANDBOX=1 npm run check`; essa opção não é necessária no computador pessoal. `CHROME_BIN` permite informar o caminho do navegador. Consulte [QA.md](docs/QA.md) para Windows, execução com interface e comandos individuais.
 

@@ -1,0 +1,27 @@
+// @vitest-environment jsdom
+import { it,expect,vi } from 'vitest';
+import { createCore } from '../../src/core/createCore.js';
+import { mountDodgeQuality } from '../../src/ui/dodgeQualityScreen.js';
+import { DEFAULT_PREFERENCES,PREFERENCES_KEY } from '../../src/settings/preferences.js';
+const settle=async()=>{for(let i=0;i<10;i++)await Promise.resolve();};
+async function setup(){
+ const screen=document.createElement('main');document.body.append(screen);const core=createCore(),download=vi.fn(),disposals=[];let frame,clock=0;vi.spyOn(window.performance,'now').mockImplementation(()=>clock);
+ const view=mountDodgeQuality({screen,core,download,loadPreview:async()=>({mountPreview(stage,options){frame=options;stage.dataset.visuals='ready';const canvas=document.createElement('canvas');canvas.tabIndex=-1;stage.append(canvas);const dispose=vi.fn();disposals.push(dispose);return {dispose,getRenderInfo:()=>({quality:options.graphicsQuality,renderWidth:800,renderHeight:600})};}})});await settle();
+ const tick=()=>{clock+=20;const previous=frame.session.snapshot().elapsed;frame.session.update(.02);frame.exercise.update(frame.session.snapshot().elapsed-previous,{x:0,z:0},{x:0,z:0});frame.onFrame();};
+ return {screen,core,view,download,disposals,tick,get frame(){return frame;},advanceGap(){clock+=10000;},dispose(){view.dispose();core.dispose();screen.remove();localStorage.clear();}};
+}
+it('compares presets in memory, excludes a paused gap and exports observed data without changing saved preferences',async()=>{
+ localStorage.setItem(PREFERENCES_KEY,JSON.stringify(DEFAULT_PREFERENCES));const original=localStorage.getItem(PREFERENCES_KEY),app=await setup();
+ try{let select=app.screen.querySelector('.probe-intro select');select.value='leve';select.dispatchEvent(new Event('change'));await settle();expect(app.frame.graphicsQuality).toBe('leve');expect(app.disposals[0]).toHaveBeenCalledOnce();app.screen.querySelector('.probe-intro button').click();expect(document.activeElement.tagName).toBe('CANVAS');
+  for(let i=0;i<250;i++)app.tick();app.frame.onDiagnosticInput('dash');app.frame.session.pause();app.advanceGap();app.frame.onDiagnosticInput('flash');window.dispatchEvent(new Event('resize'));app.frame.session.resume();
+  for(let i=0;i<1400&&app.frame.session.snapshot().state==='running';i++)app.tick();expect(app.frame.session.snapshot().state).toBe('completed');expect(app.screen.querySelector('dialog').open).toBe(true);expect(app.screen.querySelector('.probe-comparison tbody').children).toHaveLength(1);expect(app.screen.textContent).toContain('A janela mudou');
+  [...app.screen.querySelectorAll('button')].find(b=>b.textContent==='Baixar relatório').click();const report=app.download.mock.calls[0][2];expect(report.metrics.averageFps).toBeCloseTo(50,2);expect(report.metrics.commands).toMatchObject({dash:1,flash:0});expect(report.viewportChanges).toBe(1);expect(report.quality).toBe('leve');expect(report.playerFeedback).toEqual({controls:null,clarity:null,smoothness:null});expect(localStorage.getItem(PREFERENCES_KEY)).toBe(original);
+  const next=app.screen.querySelector('.probe-next-quality select');next.value='ultra';[...app.screen.querySelectorAll('button')].find(b=>b.textContent==='Repetir verificação').click();await settle();app.screen.querySelector('.probe-intro button').click();for(let i=0;i<1650&&app.frame.session.snapshot().state==='running';i++)app.tick();expect(app.screen.querySelector('.probe-comparison tbody').children).toHaveLength(2);expect(app.frame.graphicsQuality).toBe('ultra');expect(localStorage.getItem(PREFERENCES_KEY)).toBe(original);
+ }finally{app.dispose();}expect(app.disposals.every(spy=>spy.mock.calls.length===1)).toBe(true);
+});
+it('does not mount an arena after navigation/disposal wins a late import',async()=>{
+ const screen=document.createElement('main'),core=createCore();let resolve;const pending=new Promise(r=>{resolve=r;}),mountPreview=vi.fn();const view=mountDodgeQuality({screen,core,loadPreview:()=>pending});await settle();view.dispose();resolve({mountPreview});await settle();expect(mountPreview).not.toHaveBeenCalled();core.dispose();
+});
+it('does not turn a WebGL error into a valid report when a ready notification arrives later',async()=>{
+ const screen=document.createElement('main'),core=createCore(),download=vi.fn();const view=mountDodgeQuality({screen,core,download,loadPreview:async()=>({mountPreview(stage,o){o.onError(new Error('context lost'));stage.dataset.visuals='ready';return {dispose(){}};}})});await settle();expect(screen.querySelector('.probe-intro button').disabled).toBe(true);expect(screen.querySelector('dialog').open).toBe(false);expect(download).not.toHaveBeenCalled();view.dispose();core.dispose();
+});

@@ -1,13 +1,13 @@
-# Checklist — 1.0.0-rc.20
+# Checklist — 1.0.0-rc.21
 
-Resultados locais de 31/10/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux. A [checklist anterior](history/RELEASE_CHECKLIST-RC1.md) é histórica. Evidência e limites estão em [VALIDATION.md](VALIDATION.md).
+Resultados locais de 01/11/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux. A [checklist anterior](history/RELEASE_CHECKLIST-RC1.md) é histórica. Evidência e limites estão em [VALIDATION.md](VALIDATION.md).
 
 | Critério | Estado | Evidência/limite |
 | --- | --- | --- |
-| Instalação pelo lockfile | PASSOU | Instalação limpa da rc.17: 151 pacotes; dependências preservadas na rc.20, metadados de versão sincronizados no lockfile |
-| Testes automatizados | PASSOU | 331 testes, 67 arquivos; inclui impactos somente de apresentação, captura terminal entre amostras, objetivos atingíveis, comparação em memória e abertura da revisão |
+| Instalação pelo lockfile | PASSOU | Instalação limpa da rc.17: 151 pacotes; dependências preservadas na rc.21, metadados de versão sincronizados no lockfile |
+| Testes automatizados | PASSOU | 348 testes, 73 arquivos; inclui medição limitada em memória, pausa, geometria das cinco preparações, pose real, animações criadas ao usar e relatos opcionais |
 | Lint | PASSOU | ESLint sem avisos, usando minimatch corrigido |
-| Build | PASSOU COM AVISO | Chunk 3D de 726,81 kB minificados; carregado sob demanda |
+| Build | PASSOU COM AVISO | Chunk 3D de 729,56 kB minificados; carregado sob demanda |
 | Auditoria completa | PASSOU | Zero vulnerabilidades reportadas na consulta |
 | Isolamento de QA | PASSOU | localStorage e progresso oficial não vazam entre contextos; páginas descartadas |
 | IndexedDB nativo | PASSOU | Migração, conflito, idempotência, rollback e conquistas |
@@ -16,6 +16,7 @@ Resultados locais de 31/10/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux
 | Séries reproduzíveis | PASSOU | Mesmo código em duas tentativas, pausa, comparação, retomada, abandono, perfil e registro oficial preservados |
 | Protótipo RIFT LAB | PASSOU NO ESCOPO | Cinco famílias nos quatro presets, jornada opcional, entrada livre no Normal, resultado e revisão focados; dados anteriores preservados |
 | Impactos e objetivos focados | PASSOU NO ESCOPO | Sinal de impacto real, última amostra, objetivo de 30 s/oito esquivas e comparação de duas rodadas; revisão expandida com reprodução em 0,5× |
+| Verificação de fluidez | PASSOU NO ESCOPO | Relógio natural, Leve/Ultra, seis comandos, pausa, comparação, exportação explícita, preferência e registro oficial preservados; hardware físico pendente |
 | Apresentação do Duelista | INSPECIONADA | Base KayKit adaptada, runas, capa e espada estética; aceitação artística comercial permanece pendente |
 | Áudio adaptativo | PASSOU NO ESCOPO | Cues originais, pressão, limite de quatro vozes e preparações espaçadas; mixagem em hardware exige teste manual |
 | Comandos de Kiting | PASSOU | Três opções com teclado/mouse nativos, uma ordem por ataque, ausência de fila, pausa e preferência |
@@ -28,7 +29,7 @@ Resultados locais de 31/10/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux
 | Tela cheia interativa | NÃO VERIFICADO | Exige execução com interface e aceitação manual |
 | Windows/Chrome/Edge e hardware real | NÃO VERIFICADO | Roteiro em QA.md |
 | Calibração com jogadores | NÃO VERIFICADO | Escala interna, sem equivalência comprovada ao elo do LoL |
-| CI/Pages remoto | PÓS-PUSH | Ambos executam npm run check; consulte a execução vinculada ao commit em [Actions](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions). A rc.19 anterior teve CI/Pages aprovados e os assets públicos conferidos; isso não substitui a validação da rc.20 |
+| CI/Pages remoto | PÓS-PUSH | Ambos executam npm run check; consulte a execução vinculada ao commit em [Actions](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions). A rc.20 anterior teve CI/Pages aprovados e os assets públicos conferidos; isso não substitui a validação da rc.21 |
 | Publicação/restauração do ambiente | NÃO VERIFICADO | Não faz parte desta alteração de código |
 
 Decisão: manter **release candidate**. A experiência de Esquiva e as regressões anteriores passaram nos checks locais; não há certificação de versão final nem alegação de integração com o client do LoL.

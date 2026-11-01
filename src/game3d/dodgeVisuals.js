@@ -31,14 +31,27 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
   const posts=Array.from({length:8},()=>mesh(geometries.post,s.solid,effect,'cage-post',105)),caps=Array.from({length:8},()=>mesh(geometries.crystal,white,effect,'cage-crystal',106));
   const links=variant==='hook_linear'?Array.from({length:quality==='ultra'?6:quality==='alto'?4:2},()=>mesh(geometries.hoop,s.tail,effect,'rune-chain',113)):[];
   const charge=mesh(geometries.sphere,whiteSoft,root,'cast-charge',110);
+  const signatureCount=({arcane_bolt:2,heavy_lance:1,hook_linear:1,sun_beam:2,artillery:4})[variant]??0;
+  const signatures=Array.from({length:signatureCount},()=>mesh(variant==='hook_linear'?geometries.ring:variant==='heavy_lance'?geometries.crystal:geometries.box,whiteSoft,warning,'telegraph-signature',103));
   const arrow=arrows?.ownerDocument.createElement('span');if(arrow){arrow.className='dodge-origin-arrow';arrow.hidden=true;arrow.style.color='#'+s.color.toString(16).padStart(6,'0');arrows.append(arrow);}
-  return {root,warning,effect,path,guide,disc,rim,clock,warningShadow,outline,body,core,tail,hoop,halo,footprint,beam,beamCore,impact,edge,pillar,wall,inner,outer,posts,caps,links,charge,arrow,caster:null,variant};
+  return {root,warning,effect,path,guide,disc,rim,clock,warningShadow,outline,body,core,tail,hoop,halo,footprint,beam,beamCore,impact,edge,pillar,wall,inner,outer,posts,caps,links,signatures,charge,arrow,caster:null,variant};
  }
  function actor(ranged){let at=casters.findIndex(a=>a.group.userData.ranged===ranged);if(at>=0)return casters.splice(at,1)[0];if(actorCount>=12)return null;actorCount++;const value=createCharacter({enemy:true,caster:true,ranged,scale:.85,reducedMotion,dodge:true});if(assets)value.applyAssets(assets);return value;}
  function releaseCaster(entry){if(!entry.caster)return;entry.caster.group.removeFromParent();casters.push(entry.caster);entry.caster=null;}
  function retire(id){const e=active.get(id);e.root.visible=false;if(e.arrow)e.arrow.hidden=true;releaseCaster(e);if(!pool.has(e.variant))pool.set(e.variant,[]);pool.get(e.variant).push(e);active.delete(id);}
  function lane(node,p,width,height){const length=p.shape==='beam'?p.length:p.range;node.position.set(p.origin.x+p.direction.x*length/2,height/2+.045,p.origin.z+p.direction.z*length/2);node.rotation.y=Math.atan2(p.direction.x,p.direction.z);node.scale.set(width,height,length);}
  function circle(node,origin,radius,y=.055){node.position.set(origin.x,y,origin.z);node.scale.set(radius,radius,1);}
+ function signature(e,p){
+  const heading=Math.atan2(p.direction.x,p.direction.z),r=p.radius;
+  for(const [i,node]of e.signatures.entries()){
+   node.rotation.set(0,heading,0);node.position.set(p.origin.x+p.direction.x*1.4,.085,p.origin.z+p.direction.z*1.4);
+   if(p.variant==='sun_beam'){const side=i?1:-1;node.position.set(p.origin.x+p.direction.x*p.length/2+p.direction.z*(r-.03)*side,.085,p.origin.z+p.direction.z*p.length/2-p.direction.x*(r-.03)*side);node.scale.set(.035,.015,p.length);}
+   else if(p.variant==='artillery'){const a=i*Math.PI/2;node.position.set(p.origin.x+Math.sin(a)*r*.93,.085,p.origin.z+Math.cos(a)*r*.93);node.rotation.y=a;node.scale.set(.04,.015,r*.12);}
+   else if(p.variant==='heavy_lance')node.scale.set(r*.4,.015,r*.75);
+   else if(p.variant==='hook_linear'){node.rotation.set(-Math.PI/2,0,0);node.scale.set(r*.55,r*.55,1);}
+   else{const side=i?1:-1;node.position.x+=p.direction.z*r*.18*side;node.position.z-=p.direction.x*r*.18*side;node.rotation.y=heading-side*.7;node.scale.set(.04,.015,r*.75);}
+  }
+ }
  function bolt(e,p,time){
   const at=p.position,r=p.radius;e.outline.visible=e.body.visible=e.core.visible=e.footprint.visible=true;e.halo.visible=effects;
   e.body.position.set(at.x,.75,at.z);e.body.rotation.set(0,Math.atan2(p.direction.x,p.direction.z),0);e.body.scale.set(r*.86,r*.72,r*1.3);
@@ -60,6 +73,7 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
    if(!active.has(p.id)){const entry=pool.get(p.variant)?.pop()??make(p.variant);entry.root.visible=true;active.set(p.id,entry);}
    const e=active.get(p.id),waiting=p.phase==='warning',shape=p.shape??'bolt',progress=p.windup?Math.min(1,p.age/p.windup):1;
    e.warning.visible=waiting;e.effect.visible=!waiting;
+   if(waiting)signature(e,p);
    for(const name of ['path','guide','disc','rim','clock','warningShadow','outline','body','core','tail','hoop','halo','footprint','beam','beamCore','impact','edge','pillar','wall','inner','outer'])e[name].visible=false;
    for(const node of [...e.posts,...e.caps,...e.links])node.visible=false;
    if(p.caster&&(waiting||p.age<(p.windup??0)+.12)){

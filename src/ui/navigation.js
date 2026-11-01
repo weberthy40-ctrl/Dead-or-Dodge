@@ -1,3 +1,4 @@
+import { mountDodgeQuality } from './dodgeQualityScreen.js';
 import { mountDodgeJourney } from './dodgeJourneyScreen.js';
 import { mountChallengeHub } from './challengeHub.js';
 import { mountChallengeScreen } from './challengeScreen.js';
@@ -71,7 +72,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
     if(route.mode==='normal'&&route.level===null){const level=dodgePlacement?.level??1;route={...route,level,path:`/play/dodge/normal/${level}`};window.history.replaceState(null,'',`#${route.path}`);}
     const isDodge = Boolean(route.mode);
     const screen = createScreen(document, route,{dodgePlacement});
-    const training=/^\/(play|practice|timed|assessment|learn|challenge|focus|dodge-tech|demo|preview)(\/|$)/.test(route.path);
+    const training=/^\/(play|practice|timed|assessment|learn|challenge|focus|check|dodge-tech|demo|preview)(\/|$)/.test(route.path);
     shell.classList.toggle('is-training',training);shell.dataset.session='idle';
     screen.classList.toggle('training-screen',training);screen.classList.toggle('dodge-screen',isDodge||route.path==='/assessment/dodge');screen.classList.toggle('tutorial-screen',route.path==='/learn/dodge');screen.classList.toggle('profile-screen',route.path==='/profile');
     host.replaceChildren(screen);
@@ -83,6 +84,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
     const heading = screen.querySelector('h1'); heading.tabIndex = -1; if (focus) heading.focus();
     core.events.emit('navigation:changed', Object.freeze(route));
     if(['/journey/dodge','/prepare/dodge'].includes(route.path)){const journey=mountDodgeJourney(screen,{preparation:route.path==='/prepare/dodge'});cleanupScreen=()=>journey.dispose();}
+    if(route.path==='/check/dodge'){const quality=mountDodgeQuality({screen,core,loadPreview});cleanupScreen=()=>quality.dispose();}
     if(route.family){const focus=mountChallengeScreen({screen,core,repository,family:route.family,loadPreview});cleanupScreen=()=>focus.dispose();}
     if(route.path==='/challenges/dodge'){const hub=mountChallengeHub(screen,{repository});cleanupScreen=()=>hub.dispose();}
     if(route.code){const challenge=mountChallengeScreen({screen,core,repository,code:route.code,loadPreview});cleanupScreen=()=>challenge.dispose();}

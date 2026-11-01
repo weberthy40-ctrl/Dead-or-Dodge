@@ -9,6 +9,7 @@ import { ARENA,isInsideArena } from '../../src/game3d/spatial.js';
 import { createArena } from '../../src/game3d/arena.js';
 import { createCharacter } from '../../src/game3d/character.js';
 import { mountPreview } from '../../src/game3d/mountPreview.js';
+import { DEFAULT_PREFERENCES,PREFERENCES_KEY } from '../../src/settings/preferences.js';
 describe('arena and character', () => {
   it('includes the boundary and rejects invalid/external coordinates', () => {
     expect(isInsideArena(ARENA.center)).toBe(true);
@@ -47,6 +48,11 @@ describe('preview lifecycle without WebGL', () => {
     expect(container.querySelector('[role=alert]').textContent).toContain('WebGL'); expect(onError).toHaveBeenCalledTimes(1);
     preview.dispose(); expect(container.children).toHaveLength(0);
   });
+});
+
+it('applies a temporary quality override without rewriting the saved preset',()=>{
+ const saved=JSON.stringify({...DEFAULT_PREFERENCES,quality:'leve'});localStorage.setItem(PREFERENCES_KEY,saved);vi.spyOn(window,'devicePixelRatio','get').mockReturnValue(2);const container=document.createElement('div'),renderer={domElement:document.createElement('canvas'),setPixelRatio:vi.fn(),setSize(){},render(){},dispose(){},forceContextLoss(){}};
+ const preview=mountPreview(container,{controls:false,graphicsQuality:'ultra',createRenderer:()=>renderer,fullscreenControls:false});expect(renderer.setPixelRatio).toHaveBeenCalledWith(1.75);expect(preview.getRenderInfo().quality).toBe('ultra');expect(localStorage.getItem(PREFERENCES_KEY)).toBe(saved);expect(()=>mountPreview(container,{graphicsQuality:'invalid'})).toThrow();expect(container.querySelector('canvas')).not.toBeNull();preview.dispose();localStorage.clear();
 });
 
 it.each([{rules:'challenge',step:50,lives:2},{rules:'survival',step:33,lives:0}])('renders a real accepted beam impact in $rules and read-only review with a frozen clock',({rules,step,lives})=>{

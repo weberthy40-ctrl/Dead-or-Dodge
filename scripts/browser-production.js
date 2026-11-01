@@ -8,6 +8,7 @@ try {
   assert.equal(await page.evaluate("document.title"),'RIFT LAB');
   assert.equal(await page.evaluate("(async()=>{const r=await fetch(new URL('assets/rift-lab/midlane.svg',location.href));return r.ok;})()"),true);
   await page.go('/prepare/dodge');assert.equal(await page.evaluate("document.querySelectorAll('.focus-card').length"),5);
+  await page.go('/check/dodge');await page.waitFor("document.querySelector('.probe-intro button')?.disabled===false",{timeout:45000});assert.equal(await page.evaluate("document.querySelector('.probe-intro select').options.length"),4);await page.clickButton('Iniciar verificação');assert.equal(await page.evaluate("document.querySelector('.app-shell').dataset.session"),'running');await page.go('/');assert.equal(await page.evaluate("document.querySelectorAll('canvas').length"),0);
   await page.go('/preview');
   await page.waitFor("document.querySelector('.stage')?.dataset.visuals==='ready'", { timeout: 45000 });
   assert.equal(await page.evaluate("document.querySelectorAll('canvas').length"), 1);

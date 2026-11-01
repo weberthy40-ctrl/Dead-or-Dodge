@@ -168,3 +168,9 @@ it('renders the last synchronized scene once when a tick completes a session',()
  expect(sync.mock.invocationCallOrder.at(-1)).toBeLessThan(render.mock.invocationCallOrder.at(-1));
  callback(100);expect(render).toHaveBeenCalledOnce();controls.dispose();session.dispose();
 });
+
+it('observes accepted diagnostic commands and submitted frames without a second animation loop',()=>{
+ vi.spyOn(document,'hidden','get').mockReturnValue(false);vi.spyOn(window.performance,'now').mockReturnValue(0);const container=document.createElement('div'),canvas=document.createElement('canvas');container.append(canvas);document.body.append(container);vi.spyOn(canvas,'getBoundingClientRect').mockReturnValue({left:0,top:0,width:800,height:500});const session=createSession({countdown:0});session.start();let callback,controls;const requestFrame=vi.fn(fn=>{callback=fn;return 1;}),commands=[],render=vi.fn(),onFrame=vi.fn(()=>controls.dispose());
+ controls=attachPreviewControls({container,renderer:{domElement:canvas},camera:new THREE.PerspectiveCamera(44,1.6,.1,160),character:{setPose(){},onAbility(){}},session,exercise:{kind:'dodge',snapshot:()=>({projectiles:[]}),update(){}},visuals:{sync(){}},render,requestFrame,cancelFrame(){},onFrame,onDiagnosticInput:type=>commands.push(type)});
+ const key=(code,key)=>window.dispatchEvent(new KeyboardEvent('keydown',{code,key}));canvas.dispatchEvent(new MouseEvent('pointerdown',{button:2,clientX:500,clientY:250}));key('KeyE','e');key('KeyE','e');session.pause();key('KeyD','d');session.resume();key('KeyS','s');key('KeyY','y');key('Space',' ');expect(commands).toEqual(['move','dash','stop','camera','recenter']);callback(0);expect(onFrame).toHaveBeenCalledOnce();expect(render.mock.invocationCallOrder.at(-1)).toBeLessThan(onFrame.mock.invocationCallOrder[0]);expect(requestFrame).toHaveBeenCalledOnce();session.dispose();container.remove();
+});

@@ -1,4 +1,5 @@
 import { FOCUS_GOAL,FOCUS_GOAL_TEXT,buildFocusCoaching } from '../training/dodge/focusCoaching.js';
+import { mountPracticeFeedback } from './playerFeedback.js';
 import { mountFocusCoaching } from './focusCoaching.js';
 import { PREMIUM_FAMILIES } from '../game3d/artDirection.js';
 import { createFocusExercise,FOCUS_RULESET_VERSION } from '../training/dodge/focusExercise.js';
@@ -72,7 +73,7 @@ export function mountChallengeScreen({ screen, core, repository, code, family, l
       const content = element(doc, 'div', 'result-content');
       mountDodgeFeedback({ container: content, metrics, recording: result });
       content.append(element(doc, 'p', 'status-note', focused?'Treino focado: não altera seu histórico, patente ou nível no Normal.':'Resultado das séries: não altera sua patente ou seu nível no Normal.'));
-      if(focused){const coaching=buildFocusCoaching(family,metrics,previousFocus);mountFocusCoaching(content,coaching);if(coaching.summary)previousFocus=coaching.summary;} else {
+      if(focused){const coaching=buildFocusCoaching(family,metrics,previousFocus);mountFocusCoaching(content,coaching);if(coaching.summary){previousFocus=coaching.summary;mountPracticeFeedback(content,{family,summary:coaching.summary,render:preview?.getRenderInfo?.()??null,achieved:coaching.status==='achieved'});}} else {
       const saveStatus = element(doc, 'p', 'series-save-status', 'Salvando tentativa da série…'); saveStatus.setAttribute('role', 'status');
       const retry = element(doc, 'button', 'button', 'Tentar salvar novamente'); retry.type = 'button'; retry.hidden = true;
       const history = element(doc, 'section', 'series-comparison');
