@@ -298,3 +298,11 @@ Novas verificações:
 Build: **138 módulos**, bundle principal de **273,96 kB minificados / 88,73 kB gzip** e módulo 3D de **726,81 kB / 192,03 kB gzip**. O aviso de chunk maior que 500 kB permanece explícito; o módulo 3D continua sob demanda. Dependências, colisões, movimento, dificuldade, fórmulas oficiais, persistência/progressão e códigos `dd1` foram preservados. Os novos dados de apresentação e comparação ficam em memória, sem migração do banco ou novos campos de backup.
 
 Os relógios controlados reproduzem estados e entradas; não medem FPS ou latência física. Tela cheia interativa, Windows/Chrome/Edge, mixagem de áudio em hardware, aceitação artística comercial e calibração com jogadores continuam pendentes. O estado remoto de CI e Pages é confirmado após o push na execução vinculada ao commit em [Actions](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions); aprovação local não equivale a deploy concluído.
+
+### Sincronização de QA após a publicação — 01/11/2026
+
+O [Pages do commit 0761f1d](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions/runs/41254697518) passou e publicou a rc.20. O endereço público respondeu HTTP 200, informou rc.20 e serviu JavaScript principal, CSS, módulo 3D e ilustração com hashes SHA-256 idênticos ao build local validado.
+
+A [validação independente](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions/runs/41254697448) falhou na expectativa de câmera livre de `browser-dodge`. O roteiro permitia que o tempo da partida avançasse entre a captura e os comandos de mobilidade, tornando a observação dependente da duração das chamadas do DevTools. O trecho agora controla esse intervalo e verifica sessão ativa, foco no canvas, Y, Espaço e estado do botão de câmera, sem retirar assertions. O tempo normal é restaurado antes de aguardar a derrota e o salvamento; avaliação e Sobrevivência continuam em tempo normal.
+
+Com esse ajuste exclusivo de QA e documentação, `npm run lint` e a repetição isolada de `browser-dodge` no Chromium passaram com exit status 0. Relatório local: `/workspace/project-review-evidence/rc20-dodge-native/suite.log`. Os arquivos de aplicação, dependências e build permaneceram idênticos aos da checagem completa de 331 testes/dez suítes registrada acima. O push seguinte repete os gates completos de CI/Pages para este roteiro revisado.
