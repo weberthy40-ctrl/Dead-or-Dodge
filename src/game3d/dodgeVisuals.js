@@ -1,4 +1,5 @@
 import { createDodgeImpactVisuals } from './dodgeImpactVisuals.js';
+import { createOriginAlerts } from './originAlerts.js';
 import { PREMIUM_FAMILIES } from './artDirection.js';
 import * as THREE from 'three';
 import { VARIANTS } from '../training/dodge/projectiles.js';
@@ -17,7 +18,7 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
  const colors=Object.fromEntries(Object.values(PREMIUM_FAMILIES).map(f=>[f.variant,f.color]));
  const styles=Object.fromEntries(Object.entries(VARIANTS).map(([id,v])=>{const color=colors[id]??v.color;return [id,{color,solid:material(color),soft:material(color,.09),fill:material(color,.25),tail:material(color,.65),halo:own(new THREE.SpriteMaterial({map:haloMap,color,opacity:.55,transparent:true,depthTest:false,depthWrite:false,toneMapped:false}))}];}));
  const axis=new THREE.Vector3(0,1,0),direction=new THREE.Vector3(),projected=new THREE.Vector3();
- const arrows=container?.ownerDocument?.createElement('div');if(arrows){arrows.className='dodge-origin-alerts';arrows.setAttribute('aria-hidden','true');container.append(arrows);}
+ const originAlerts=createOriginAlerts(container,camera);
  const legend=container?.ownerDocument?.createElement('p');if(legend){legend.className='dodge-spell-legend';container.append(legend);}
  function mesh(geometry,mat,parent,name='',order=100){const value=new THREE.Mesh(geometry,mat);value.name=name;value.renderOrder=order;value.raycast=()=>{};parent.add(value);return value;}
  function floor(geometry,mat,parent,name='',order=100){const value=mesh(geometry,mat,parent,name,order);value.rotation.x=-Math.PI/2;return value;}
@@ -33,12 +34,11 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
   const charge=mesh(geometries.sphere,whiteSoft,root,'cast-charge',110);
   const signatureCount=({arcane_bolt:2,heavy_lance:1,hook_linear:1,sun_beam:2,artillery:4})[variant]??0;
   const signatures=Array.from({length:signatureCount},()=>mesh(variant==='hook_linear'?geometries.ring:variant==='heavy_lance'?geometries.crystal:geometries.box,whiteSoft,warning,'telegraph-signature',103));
-  const arrow=arrows?.ownerDocument.createElement('span');if(arrow){arrow.className='dodge-origin-arrow';arrow.hidden=true;arrow.style.color='#'+s.color.toString(16).padStart(6,'0');arrows.append(arrow);}
-  return {root,warning,effect,path,guide,disc,rim,clock,warningShadow,outline,body,core,tail,hoop,halo,footprint,beam,beamCore,impact,edge,pillar,wall,inner,outer,posts,caps,links,signatures,charge,arrow,caster:null,variant};
+  return {root,warning,effect,path,guide,disc,rim,clock,warningShadow,outline,body,core,tail,hoop,halo,footprint,beam,beamCore,impact,edge,pillar,wall,inner,outer,posts,caps,links,signatures,charge,caster:null,variant};
  }
  function actor(ranged){let at=casters.findIndex(a=>a.group.userData.ranged===ranged);if(at>=0)return casters.splice(at,1)[0];if(actorCount>=12)return null;actorCount++;const value=createCharacter({enemy:true,caster:true,ranged,scale:.85,reducedMotion,dodge:true});if(assets)value.applyAssets(assets);return value;}
  function releaseCaster(entry){if(!entry.caster)return;entry.caster.group.removeFromParent();casters.push(entry.caster);entry.caster=null;}
- function retire(id){const e=active.get(id);e.root.visible=false;if(e.arrow)e.arrow.hidden=true;releaseCaster(e);if(!pool.has(e.variant))pool.set(e.variant,[]);pool.get(e.variant).push(e);active.delete(id);}
+ function retire(id){const e=active.get(id);e.root.visible=false;releaseCaster(e);if(!pool.has(e.variant))pool.set(e.variant,[]);pool.get(e.variant).push(e);active.delete(id);}
  function lane(node,p,width,height){const length=p.shape==='beam'?p.length:p.range;node.position.set(p.origin.x+p.direction.x*length/2,height/2+.045,p.origin.z+p.direction.z*length/2);node.rotation.y=Math.atan2(p.direction.x,p.direction.z);node.scale.set(width,height,length);}
  function circle(node,origin,radius,y=.055){node.position.set(origin.x,y,origin.z);node.scale.set(radius,radius,1);}
  function signature(e,p){
@@ -66,7 +66,7 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
   if(p.variant==='dark_orb'){e.body.scale.setScalar(r*.9);e.outline.scale.setScalar(r*1.03);e.hoop.visible=true;e.hoop.position.copy(e.body.position);e.hoop.rotation.set(Math.PI/3,reducedMotion?0:time*2,.3);e.hoop.scale.setScalar(r*.92);e.core.scale.set(r*.35,r*.35,r*.35);}
  }
  return {applyAssets(value){assets=value;for(const a of [...casters,...[...active.values()].map(e=>e.caster).filter(Boolean)])a.applyAssets(value);},sync(snapshot){
-  if(disposed)return;impactVisuals.sync(snapshot.impactEchoes);const time=snapshot.elapsed??lastTime+.016,dt=Math.max(0,Math.min(.1,time-lastTime));lastTime=time;
+  if(disposed)return;originAlerts.sync(snapshot.projectiles);impactVisuals.sync(snapshot.impactEchoes);const time=snapshot.elapsed??lastTime+.016,dt=Math.max(0,Math.min(.1,time-lastTime));lastTime=time;
   if(legend){const label=snapshot.level>=3?'Contorno = área de impacto · Gaiola: apenas a borda causa dano':'Trajetória de apoio ativa · Saia do contorno antes do impacto';if(legend.textContent!==label)legend.textContent=label;}
   const ids=new Set(snapshot.projectiles.map(p=>p.id));for(const id of active.keys())if(!ids.has(id))retire(id);
   for(const p of snapshot.projectiles){
@@ -82,7 +82,6 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
    }else releaseCaster(e);
    e.charge.visible=Boolean(p.caster)&&waiting;
    if(e.charge.visible){const target=shape==='circle'||shape==='ring'?p.origin:p.caster,t=shape==='circle'?progress:0;e.charge.position.set(p.caster.x+(target.x-p.caster.x)*t,1.7+Math.sin(t*Math.PI)*3,p.caster.z+(target.z-p.caster.z)*t);e.charge.scale.setScalar(.18+progress*.16);if(p.variant==='meteor_rain')e.charge.position.set(p.origin.x,9*(1-progress)+.7,p.origin.z);}
-   if(e.arrow){e.arrow.hidden=true;if(waiting&&p.caster&&camera){projected.set(p.caster.x,1.5,p.caster.z).project(camera);const x=projected.x,y=-projected.y;if(Math.abs(x)>.92||Math.abs(y)>.85){const f=.9/Math.max(Math.abs(x),Math.abs(y));e.arrow.hidden=false;e.arrow.style.left=`${Math.max(4,Math.min(96,50+x*f*50))}%`;e.arrow.style.top=`${Math.max(21,Math.min(89,50+y*f*50))}%`;e.arrow.style.transform=`translate(-50%,-50%) rotate(${Math.atan2(y,x)+Math.PI/2}rad)`;}}}
    if(shape==='bolt'||shape==='beam'){
     e.path.visible=e.guide.visible=waiting&&(shape==='beam'||(p.pathHint??'full')==='full'||p.pathHint==='brief'&&p.age<p.hintDuration);lane(e.path,p,p.radius*2,.015);lane(e.guide,p,.055,.025);
     if(!waiting&&shape==='bolt')bolt(e,p,time);
@@ -99,5 +98,5 @@ export function createDodgeVisuals(scene,{camera,container,reducedMotion=false,e
     }
    }
   }
- },dispose(){if(disposed)return;disposed=true;impactVisuals.dispose();for(const id of active.keys())retire(id);for(const a of casters)a.dispose();casters.length=0;pool.clear();group.removeFromParent();group.clear();for(const value of owned)value.dispose();owned.clear();arrows?.remove();legend?.remove();}};
+ },dispose(){if(disposed)return;disposed=true;originAlerts.dispose();impactVisuals.dispose();for(const id of active.keys())retire(id);for(const a of casters)a.dispose();casters.length=0;pool.clear();group.removeFromParent();group.clear();for(const value of owned)value.dispose();owned.clear();legend?.remove();}};
 }

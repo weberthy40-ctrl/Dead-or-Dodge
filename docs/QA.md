@@ -44,8 +44,8 @@ Logs e capturas ficam em `artifacts/qa/<execução>/`, ignorado pelo Git. `QA_AR
 | `browser-isolation` | Salva progresso em um contexto, verifica outro vazio e confirma remoção das páginas ao fechar |
 | `browser-tutorial` | Movimento e teclas configuradas, pausa, colisão/repetição, saída da área e perfil sem resultados oficiais |
 | `browser-series` | Duas tentativas do mesmo código, pausa, IDs distintos, perfil/registro oficial preservados, comparação, recentes, abandono e backup em IndexedDB real |
-| `browser-rift` | Jornada opcional, preparação, acesso livre ao Normal 20, cinco famílias nos quatro presets, impacto confirmado, objetivo, comparação de duas rodadas, revisão com reprodução em 0,5× e progresso anterior preservado |
-| `browser-quality` | Dois presets com relógio natural, seis comandos nativos, pausa, comparação, download explícito, preferência/registro anterior preservados e descarte da cena |
+| `browser-rift` | Jornada opcional, preparação, acesso livre ao Normal 20, cinco famílias nos quatro presets, impacto confirmado, objetivo, comparação de duas rodadas, revisão com reprodução em 0,5×, origem identificada da área e progresso anterior preservado |
+| `browser-quality` | Dois presets com relógio natural, seis comandos nativos, pausa, comparação com condição da amostra, exportação individual/conjunta, resumo selecionável, respostas por rodada e preferência/registro anterior preservados e descarte da cena |
 | `browser-smoke` | Navegação, 20 níveis de Esquiva e 30 das demais modalidades, quatro diagnósticos, dez remontagens, canvas/RAF, heap e quatro presets gráficos |
 | `browser-native` | IndexedDB nativo: migração, bloqueio, quatro modalidades, backup, conflitos, idempotência, quota/rollback e conquistas |
 | `browser-kiting-controls` | Clique direto, A + clique e A imediato com entrada nativa, uma ordem/um ataque, preferência após reload, salvamento real, filtros e backup com registro antigo |
@@ -110,3 +110,11 @@ Na preparação, abrir **Verificar fluidez no meu computador**. Rodar Leve/Médi
 Concluir práticas focadas com jogadores, observar a meta de 30 segundos/oito esquivas e colher os três campos opcionais de dificuldade, clareza e resposta dos controles. Distinguir respostas de pessoas de fixtures automatizadas. Avaliar os relatos antes de retunar a meta; esta entrega mantém os valores. Conferir corpo/capa em corrida, parada, curva e dash, sem atraso na posição ou orientação; redução de movimento deve eliminar inclinações. Verificar as marcas distintas das cinco preparações dentro dos contornos reais nos quatro presets.
 
 Com navegador/servidor de QA já abertos, a verificação individual é `node scripts/browser-quality.js http://127.0.0.1:5173/`. Ela usa contextos temporários, coleta em tempo natural e gera `observed-reports.json` no diretório de artefatos. Esse arquivo é evidência de funcionamento da instrumentação, não benchmark de GPU física.
+
+### Compartilhamento e avisos de origem — rc.22
+
+Comparar pelo menos dois presets, responder um campo na primeira rodada e deixar a segunda sem respostas. Exportar a rodada atual e a comparação: cada uma deve manter suas respostas e medidas. Selecionar o resumo, usar Ctrl+C e conferir todos os dados de ambas. Nenhuma ação deve enviar dados remotamente ou alterar histórico/preferências. A lista continua limitada às oito últimas rodadas e é descartada ao sair.
+
+Ativar tela cheia antes de iniciar e conferir ausência de aviso sem mudança durante a rodada. Repetir com redimensionamento real na execução e durante pausa: o aviso deve aparecer na tabela, no resumo e no JSON. Eventos sem alteração de dimensões/escala não devem marcar a amostra.
+
+Na Esquiva, identificar as cinco famílias e habilidades antigas por preparações na periferia da câmera. Conferir texto em pé, direção da seta, quatro rótulos no máximo, separação, contador e desaparecimento ao ativar/remover. Repetir com câmera livre, zoom, muitos ataques e quatro presets; avisos físicos e comandos devem continuar iguais. Os indicadores não significam que toda preparação atingirá o jogador.
