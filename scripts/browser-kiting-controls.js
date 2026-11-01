@@ -11,14 +11,15 @@ async function reload(){
 }
 async function advance(milliseconds){for(let elapsed=0;elapsed<milliseconds;elapsed+=100){await page.evaluate('qaClock+=100');await page.evaluate('qaNextFrame()');}}
 const count=async()=>Number((await page.evaluate(hud)).match(/(\d+) ATAQUES/)[1]);
+async function readyToStart(){await page.waitFor("document.querySelector('.stage')?.dataset.visuals==='ready'&&Boolean(document.querySelector('.stage canvas'))&&[...document.querySelectorAll('.kiting-practice button')].some(b=>b.textContent==='Iniciar treino'&&!b.disabled&&!b.hidden)",{timeout:45000});}
 try{
  await page.send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});
  await page.evaluate(`(async()=>{const {DEFAULT_PREFERENCES,savePreferences}=await import('/src/settings/preferences.js');savePreferences(localStorage,{...DEFAULT_PREFERENCES,quality:'leve'});})()`);
  for(const profile of ['direct','attack-click','quick-attack']){
   if(profile!=='direct'){await page.close();page=await openBrowserPage();await page.send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});await page.evaluate(`(async()=>{const {DEFAULT_PREFERENCES,savePreferences}=await import('/src/settings/preferences.js');savePreferences(localStorage,{...DEFAULT_PREFERENCES,quality:'leve'});})()`);}
-  await page.go('/timed/kiting/1');await page.waitFor("document.querySelector('.stage')?.dataset.visuals==='ready'",{timeout:45000});
+  await page.go('/timed/kiting/1');await readyToStart();
   await page.evaluate(`(()=>{const s=document.querySelector('select[aria-label="Comandos de Kiting"]');s.value=${JSON.stringify(profile)};s.dispatchEvent(new Event('change'));})()`);
-  await page.waitFor("document.querySelector('.stage')?.dataset.visuals==='ready'",{timeout:45000});await page.clickButton('Iniciar treino');await page.waitFor("document.querySelector('.app-shell').dataset.session==='running'");
+  await readyToStart();await page.clickButton('Iniciar treino');await page.waitFor("document.querySelector('.app-shell').dataset.session==='running'");
   assert.equal(await page.evaluate("document.querySelector('select[aria-label=\"Comandos de Kiting\"]').disabled"),true);
   // Software rendering must not let the cooldown expire between native protocol calls.
   await page.evaluate(`(()=>{window.qaClock=performance.now();const request=window.requestAnimationFrame.bind(window);window.qaRestoreClock=()=>{window.requestAnimationFrame=request;delete performance.now;};window.qaNextFrame=()=>new Promise(resolve=>request(()=>resolve(true)));window.requestAnimationFrame=callback=>request(()=>callback(window.qaClock));Object.defineProperty(performance,'now',{configurable:true,value:()=>window.qaClock});})()`);await page.evaluate('qaNextFrame()');
@@ -36,7 +37,7 @@ try{
   if(process.env.QA_ARTIFACT_DIR){await mkdir(process.env.QA_ARTIFACT_DIR,{recursive:true});await writeFile(`${process.env.QA_ARTIFACT_DIR}/${profile}.png`,Buffer.from((await page.send('Page.captureScreenshot',{format:'png'})).data,'base64'));}
   await page.evaluate('qaRestoreClock()');await page.go('/');
  }
- await reload();await page.go('/timed/kiting/10');await page.waitFor("document.querySelector('.stage')?.dataset.visuals==='ready'",{timeout:45000});
+ await reload();await page.go('/timed/kiting/10');await readyToStart();
  assert.equal(await page.evaluate("document.querySelector('select[aria-label=\"Comandos de Kiting\"]').value"),'quick-attack');
  await page.clickButton('Iniciar treino');await page.waitFor("document.querySelector('dialog.kiting-result').textContent.includes('Salvo neste dispositivo')",{timeout:60000});
  report.storage=await page.evaluate(`(async()=>{

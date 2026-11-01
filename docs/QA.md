@@ -94,6 +94,8 @@ Conferir no computador do jogador: leitura do Duelista em corrida, parada, virad
 
 O trecho de mobilidade de `browser-dodge` controla o relógio de simulação entre os comandos nativos para que atrasos do DevTools não encerrem a rodada antes da checagem de Y/Espaço. Ele confere sessão ativa, foco no canvas e estado do botão de câmera, preservando todas as verificações. Sobrevivência, avaliação, derrota, salvamento e perfil usam tempo normal; o relógio é restaurado antes da conclusão do Normal.
 
+`browser-kiting-controls` aguarda a cena pronta, um canvas presente e o botão de início habilitado após trocar os comandos. A seleção remonta a arena; observar apenas o atributo de prontidão da cena anterior não prova que a nova tentativa já pode começar.
+
 ### Impactos e prática focada
 
 Após um acerto de feixe, área ou projétil, conferir um sinal breve e a atualização correta de vidas. Pausar deve congelar a apresentação; o sinal não pode causar novo dano ou interceptar cliques. Repetir nos quatro presets e com redução de movimento. Na revisão, clicar no último impacto e voltar a um instante anterior, verificando que os sinais seguem os quadros.
