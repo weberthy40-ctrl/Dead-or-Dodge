@@ -64,6 +64,7 @@ export function mountPreview(container, { createRenderer = options => new THREE.
     if(arena)scene.fog=new THREE.FogExp2(0x1a233b,.007);
     scene.add(new THREE.HemisphereLight(0xd7e4ff,0x24233c,1.35));
     const light=new THREE.DirectionalLight(0xe5edff,2.35);light.position.set(-12,26,12);scene.add(light);
+    if(dodge){const fill=new THREE.DirectionalLight(0xaecfff,.75);fill.name='duelist-fill';fill.position.set(10,12,18);scene.add(fill);}
     if(arena&&renderer.shadowMap&&preferences.quality!=='leve'){renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;light.castShadow=true;light.shadow.mapSize.setScalar(preferences.quality==='ultra'?1536:preferences.quality==='alto'?1024:512);Object.assign(light.shadow.camera,{left:-30,right:30,top:32,bottom:-32,near:1,far:85});light.shadow.bias=-.0002;light.shadow.normalBias=.04;}
     observer = ResizeObserverClass ? new ResizeObserverClass(resize) : undefined; observer?.observe(container);
     document.addEventListener('visibilitychange',resize); document.defaultView?.addEventListener('resize',resize);

@@ -35,6 +35,12 @@ export function createCharacter({position=ARENA.center,rotation=0,scale=1,reduce
  const shield=sphere(.4,1,.95,.24,cloth,-.76,1.1,.23);shield.rotation.y=-.3;shield.visible=enemy;
  sphere(.15,1,1,.3,gold,-.76,1.1,.34);
  const ring=new THREE.Mesh(new THREE.RingGeometry(.62,.68,48),new THREE.MeshBasicMaterial({color:enemy?0xff709f:0x63ccff,transparent:true,opacity:.7,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.035;ring.raycast=()=>{};group.add(ring);
+ if(dodge&&!enemy){
+  ring.name='duelist-selection-ring';ring.material.color.setHex(0xa5e4ff);ring.material.opacity=.95;ring.material.toneMapped=false;ring.material.depthWrite=false;ring.material.forceSinglePass=true;ring.renderOrder=2;
+  const backing=new THREE.Mesh(new THREE.RingGeometry(.59,.73,48),new THREE.MeshBasicMaterial({color:0x091321,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));backing.name='duelist-selection-backing';backing.rotation.x=-Math.PI/2;backing.position.y=.03;backing.raycast=()=>{};backing.renderOrder=1;group.add(backing);
+  const heading=new THREE.BufferGeometry();heading.setAttribute('position',new THREE.Float32BufferAttribute([-.13,.036,.82,0,.036,1.03,.13,.036,.82],3));
+  const pointer=new THREE.Mesh(heading,ring.material);pointer.name='duelist-heading';pointer.raycast=()=>{};pointer.renderOrder=2;group.add(pointer);
+ }
  for(const child of group.children){if(child.userData.rest){child.updateMatrix();child.userData.rest.copy(child.matrix);}}
  const shadow=new THREE.Mesh(new THREE.CircleGeometry(.7,32),new THREE.MeshBasicMaterial({color:0x08100d,transparent:true,opacity:.24,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.02;shadow.raycast=()=>{};group.add(shadow);
  const pixels=new Uint8Array(64*8*4);for(let y=0;y<8;y++)for(let x=0;x<64;x++){const i=(y*64+x)*4,border=y===0||y===7||x===0||x===63||x%8===0;pixels[i]=border?14:enemy?237:117;pixels[i+1]=border?24:enemy?85:202;pixels[i+2]=border?21:enemy?126:255;pixels[i+3]=255;}

@@ -12,7 +12,13 @@ A entrada passa a conectar apresentação e prática: foco em uma das quatro mod
 
 A central consulta apenas dados locais, diferencia histórico vazio de falha de leitura e oferece nova consulta quando necessário. Retomar abre uma nova tentativa com início manual e preferências atuais; não restaura uma sessão em andamento nem os comandos históricos de um resultado antigo. Nenhuma modalidade, nível ou ferramenta foi removida.
 
-## Próximos incrementos propostos
+## Segunda entrega — leitura e postura, rc.24
+
+A [rc.24](DUELIST_READABILITY_RC24.md) entrega uma primeira camada de refinamento de arena e personagem: piso mais discreto, silhueta do Duelista mais clara, marcador de orientação e mistura de corrida/parada. Melhora a resposta visual do dash sem alterar comandos ou simulação. Aceitação de controles e arte em hardware real continua necessária.
+
+## Linhas de evolução
+
+Os itens 1 e 2 receberam o incremento inicial da rc.24 e continuam abertos a refinamento com avaliação do proprietário e de jogadores.
 
 | Ordem | Área | Resultado a buscar | Evidência para aceitar |
 | --- | --- | --- | --- |

@@ -8,3 +8,9 @@ it('blends running and stopping at equal rates across frame sizes, with no world
 it('handles heading wrap, bounds turn lean, freezes at zero delta and resets reduced motion',()=>{
  const m=createDuelistMotion();m.update({angle:Math.PI-.01,moving:true},.05);const small=m.update({angle:-Math.PI+.01,moving:true},.05);expect(Math.abs(small.roll)).toBeLessThan(.01);const turn=m.update({angle:0,moving:true,ability:'dash'},.05);expect(Math.abs(turn.roll)).toBeLessThanOrEqual(.065);expect(turn.pitch).toBeGreaterThanOrEqual(-.14);expect(m.update({angle:2,moving:false},0)).toEqual(turn);expect(m.update({angle:2,moving:false,reducedMotion:true},.05)).toEqual({pitch:0,roll:0,run:0});
 });
+it('settles stopping promptly and reaches the dash stance within its short active window',()=>{
+ const motion=createDuelistMotion();for(let i=0;i<30;i++)motion.update({angle:0,moving:true},1/60);
+ const dash=motion.update({angle:0,moving:true,ability:'dash'},.05);expect(dash.pitch).toBeLessThan(-.11);
+ let stop;for(let i=0;i<9;i++)stop=motion.update({angle:0,moving:false},1/60);
+ expect(stop.run).toBeLessThan(.04);expect(Math.abs(stop.roll)).toBeLessThan(.001);expect(stop.pitch).toBeGreaterThan(-.01);
+});

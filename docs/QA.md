@@ -75,6 +75,8 @@ Execute `npm run test:isolation`, `npm run test:browser`, `npm run test:storage`
 
 ## Aceitação manual desktop — pendente
 
+Na rc.24, conferir também a distinção entre personagem, piso e avisos nos quatro presets; a seta do anel acompanha a orientação e não representa hitbox. Alternar direito → S → direito, mudanças curtas de direção, dash e Flash; a resposta física deve continuar imediata. Comparar com redução de movimento e pausar durante a corrida/dash para verificar congelamento. Julgar clareza e sensação em hardware real, sem tratar capturas ou contagens de draw calls como aprovação de fluidez.
+
 A central da rc.23 também é verificada por `browser-smoke`: quatro focos selecionáveis por teclado nativo, três atalhos por foco, retomada com IndexedDB real sem alterar o registro, preservação do nível e ausência de início automático. A página inicial entra nas capturas e verificações de overflow em 390, 1366 e 1920 pixels, incluindo texto ampliado e alto contraste.
 
 Matriz inicial: Chrome e Edge atuais no Windows; 1366×768, 1920×1080 e 2560×1440; notebook com GPU integrada e computador de referência. Registrar versão do navegador, hardware, qualidade e cenário. Outros sistemas/navegadores entram no suporte após validação explícita.

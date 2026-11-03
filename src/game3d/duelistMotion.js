@@ -7,9 +7,10 @@ export function createDuelistMotion(){
   if(reducedMotion){facing=angle;run=roll=pitch=0;return {pitch,roll,run};}
   if(dt===0)return {pitch,roll,run};
   const delta=facing===null?0:Math.atan2(Math.sin(angle-facing),Math.cos(angle-facing));facing=angle;
-  const alpha=1-Math.exp(-Math.min(dt,.1)/.065);run+=((moving?1:0)-run)*alpha;
+  const alpha=1-Math.exp(-Math.min(dt,.1)/(moving?.065:.045));run+=((moving?1:0)-run)*alpha;
   roll+=(clamp(-delta/Math.max(.001,dt)*.012,-.065,.065)*(moving?1:0)-roll)*alpha;
-  pitch+=((ability==='dash'?-.14:-.025*run)-pitch)*alpha;
+  const stance=ability==='dash'?1-Math.exp(-Math.min(dt,.1)/.028):alpha;
+  pitch+=((ability==='dash'?-.14:-.025*run)-pitch)*stance;
   return {pitch,roll,run};
  }};
 }

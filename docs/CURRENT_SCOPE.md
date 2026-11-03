@@ -1,4 +1,6 @@
-# Escopo atual — 1.0.0-rc.23
+# Escopo atual — 1.0.0-rc.24
+
+A [rc.24](DUELIST_READABILITY_RC24.md) melhora a leitura do Duelista e do terreno na Esquiva, acrescenta orientação no anel de seleção e mistura corrida/parada sem reiniciar os clipes. O tratamento é cosmético e preserva os contratos físicos e de dados.
 
 A [rc.23](TRAINING_HUB_RC23.md) acrescenta a central de treino à página inicial: quatro focos com percursos opcionais e retomada no nível do último treino oficial local. Preserva regras, pontuação, dados e exercícios existentes. A direção comercial e a sequência proposta de melhorias estão em [PRODUCT_EVOLUTION.md](PRODUCT_EVOLUTION.md).
 
