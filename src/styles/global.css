@@ -546,3 +546,50 @@ label,summary{color:#c0d1ed}:is(input,select),.data-controls select{background:#
   .hub-step p { margin-bottom:.8rem; }
   .home-context { font-size:.58rem; }
 }
+
+/* Reflex presentation follows the engine's visible phase; no predictive timer or animation. */
+.reflex-signal { width:min(640px,calc(100% - 3rem)); min-height:290px; top:49%; gap:1rem; padding:1.6rem 2rem; border-radius:.8rem; background:radial-gradient(ellipse at 50% 80%,#24394b88,transparent 70%),#101c2df5; box-shadow:0 18px 70px #03081366; }
+.reflex-signal::before { content:''; position:absolute; inset:.55rem; border:1px solid #b8d7ed0e; border-radius:.4rem; pointer-events:none; }
+.reflex-phase { margin:0; font-size:.68rem; font-weight:700; letter-spacing:.18em; color:#c2d6e5; }
+.reflex-cue-row { display:flex; align-items:center; justify-content:center; gap:1.25rem; min-height:5.5rem; }
+.reflex-cue-row .cue-shape { font-size:2.4rem; opacity:.85; }
+.cue-command { font-size:clamp(1.6rem,3.4vw,2.8rem); line-height:1.15; font-weight:750; letter-spacing:.04em; }
+.reflex-cue-row[data-input='keyboard'] .cue-command { min-width:5.2rem; padding:.65rem 1.2rem; border:1px solid #ceeaff88; border-bottom-width:4px; border-radius:.55rem; background:#102136a8; box-shadow:inset 0 0 20px #91bde512; }
+.reflex-signal .cue-text { font-size:clamp(1rem,2vw,1.45rem); font-weight:500; color:inherit; }
+.reflex-signal[data-phase='waiting'] .cue-command,.reflex-signal[data-phase='countdown'] .cue-command { color:#b9c9d8; }
+.reflex-signal[data-phase='respond'][data-color='keyboard'] { background:radial-gradient(ellipse at 50% 80%,#28506366,transparent 70%),#142c40f7; border-color:#a6d8ed; box-shadow:0 18px 70px #03081366,0 0 60px #79bddd12; }
+.reflex-signal[data-phase='inhibit'] { border-width:3px; }
+.reflex-mouse-icon { display:none; position:relative; width:2.8rem; height:4.2rem; border:2px solid currentColor; border-radius:1.4rem 1.4rem 1rem 1rem; background:linear-gradient(90deg,currentColor 48%,transparent 48%); }
+.reflex-mouse-icon::before { content:''; position:absolute; width:2px; height:45%; background:currentColor; left:50%; top:0; }
+.reflex-mouse-icon::after { content:''; position:absolute; width:.3rem; height:.7rem; top:.55rem; left:calc(50% - .15rem); border-radius:1rem; background:#132338; outline:1px solid currentColor; }
+.reflex-cue-row[data-input='left'] .reflex-mouse-icon,.reflex-cue-row[data-input='right'] .reflex-mouse-icon { display:block; }
+.reflex-cue-row[data-input='right'] .reflex-mouse-icon { background:linear-gradient(90deg,transparent 52%,currentColor 52%); }
+.reflex-response-feedback { position:fixed; left:50%; bottom:5.5rem; transform:translateX(-50%); width:min(760px,calc(100% - 3rem)); padding:.8rem 1rem; border:1px solid #b9cde33b; border-radius:.5rem; background:#0e192bec; pointer-events:none; }
+.reflex-response-feedback[hidden] { display:none; }
+.reflex-response-label { margin:0 0 .3rem; font-size:.58rem; font-weight:650; letter-spacing:.12em; color:#9eb3ce; }
+.reflex-response-title { font-size:.85rem; color:#e0ebfa; }
+.reflex-response-detail { margin:.3rem 0 0; font-size:.75rem; line-height:1.45; color:#c0d0e7; }
+.reflex-response-feedback[data-status='correct'],.reflex-response-feedback[data-status='inhibited'] { border-left:3px solid #c1e69d; }
+.reflex-response-feedback:is([data-status='wrong'],[data-status='anticipated'],[data-status='missed'],[data-status='commission']) { border-left:3px solid #e7bda8; }
+.training-screen dialog.reflex-result[open] { display:flex; flex-direction:column; gap:1rem; margin:0; overflow:hidden; max-height:85svh; padding:1.5rem; }
+.reflex-result-context { margin:0 0 .5rem; font-size:.8rem; line-height:1.5; color:#c0d4ef; }
+.reflex-save-status p { margin:.3rem 0; font-size:.75rem; line-height:1.6; }
+.reflex-coaching { margin:1rem 0; padding:1.1rem; border:1px solid #8ab7ec38; border-radius:.6rem; background:linear-gradient(130deg,#20304b77,#141c2e); }
+.reflex-coaching h3 { font-size:1.2rem; line-height:1.35; margin:.65rem 0 1rem; }
+.reflex-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; margin:0 0 1rem; }
+.reflex-summary-grid>div { padding:.65rem; border:1px solid #9fbde525; border-radius:.35rem; }
+.reflex-summary-grid dt { font-size:.65rem; line-height:1.4; color:#b2c5e0; }
+.reflex-summary-grid dd { margin:.4rem 0 0; font-size:1.3rem; font-weight:600; color:#e1efff; font-variant-numeric:tabular-nums; }
+.reflex-next-action { font-size:.85rem; line-height:1.7; color:#dceaff; }
+.reflex-times { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; margin:1rem 0 .6rem; }
+.reflex-times dt { font-size:.65rem; color:#a9beda; }.reflex-times dd { font-size:1rem; margin:.35rem 0 0; color:#e1efff; font-variant-numeric:tabular-nums; }
+.reflex-coaching-note { font-size:.7rem; line-height:1.6; color:#a7bad7; }
+.reflex-coaching .status-note { padding:0; margin:.8rem 0; font-size:.75rem; line-height:1.6; }
+.reflex-practice-link { margin-top:.5rem; font-size:.8rem; }
+.reflex-evidence { padding:.8rem 0; font-size:.8rem; }.reflex-evidence h2 { font-size:1rem; }
+.reflex-rounds { list-style:none; padding:0; margin:1rem 0; }.reflex-rounds li { padding:.6rem 0; border-bottom:1px solid #a5bdd322; }.reflex-rounds p { font-size:.75rem; line-height:1.5; color:#b2c5de; margin:.3rem 0; }
+@media(max-width:700px) { .reflex-signal { width:calc(100% - 2rem); padding:1.2rem; min-height:240px; }.reflex-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.reflex-cue-row { gap:.8rem; }.reflex-response-feedback { width:calc(100% - 2rem); }.reflex-coaching { padding:.9rem; } }
+.reflex-instructions { position:fixed; bottom:4.5rem; left:50%; transform:translateX(-50%); width:min(760px,calc(100% - 3rem)); padding:.65rem 1rem; border:1px solid #b8cce322; border-radius:.4rem; background:#101c2dde; pointer-events:none; }
+.reflex-instructions .status-note { position:static; margin:.25rem 0; font-size:.72rem; line-height:1.5; color:#c0d2e6; }
+.reflex-instructions .status-note:last-child { color:#9fb5cd; }
+.is-training[data-session='running'] .reflex-instructions { display:none; }

@@ -35,6 +35,12 @@ try {
   await page.mouse({x:50,y:500});await page.waitFor("document.querySelector('.precision-feedback').textContent.includes('sem alvo')");
   assert.equal(await page.evaluate("document.activeElement===document.querySelector('canvas')"),true);
   await page.key('Escape');assert.equal(await page.evaluate("document.querySelector('.app-shell').dataset.session"),'paused');
+  await page.go('/timed/reflex/1');
+  await page.waitFor("[...document.querySelectorAll('button')].some(b=>b.textContent==='Iniciar treino'&&!b.disabled)&&Boolean(document.querySelector('canvas'))",{timeout:45000});
+  assert.equal(await page.evaluate("document.querySelector('.reflex-signal').dataset.phase"),'idle');
+  await page.clickButton('Iniciar treino');await page.waitFor("document.querySelector('.app-shell').dataset.session==='running'");await page.key('Space',' ');
+  await page.waitFor("!document.querySelector('.reflex-response-feedback').hidden&&document.querySelector('.reflex-response-feedback').dataset.status==='anticipated'");
+  await page.key('Escape');await page.waitFor("document.querySelector('.reflex-signal').dataset.phase==='paused'");
   await page.go('/');assert.equal(await page.evaluate("document.querySelectorAll('canvas').length"),0);
   assert.deepEqual(page.errors, []);
   console.log(JSON.stringify({ status: 'PASSOU', version: GAME_VERSION, productionAssets: true, sceneDisposed: true }, null, 2));

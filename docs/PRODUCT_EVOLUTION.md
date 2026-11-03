@@ -22,6 +22,8 @@ A [terceira entrega, rc.25](KITING_FEEDBACK_RC25.md), aplica o refinamento ao co
 
 A [quarta entrega, rc.26](PRECISION_FEEDBACK_RC26.md), aplica a mesma direção à Precisão: sequência e prazo legíveis, retorno por categoria observada e relatório com uma ação de prática. Mantém o clique sobre a esfera e os parâmetros de dificuldade existentes.
 
+A [quinta entrega, rc.27](REFLEX_FEEDBACK_RC27.md), leva o acabamento a Reflexos: comando legível, erros explicados pelo evento real e resultado com uma próxima ação. Reutiliza os exercícios, seus relógios e os registros anteriores. Os incrementos iniciais das quatro modalidades estão entregues; consistência entre telas e aceitação em hardware continuam como próximas frentes.
+
 Os itens 1 e 2 receberam o incremento inicial da rc.24 e continuam abertos a refinamento com avaliação do proprietário e de jogadores.
 
 | Ordem | Área | Resultado a buscar | Evidência para aceitar |

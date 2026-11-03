@@ -1,4 +1,6 @@
-# Escopo atual — 1.0.0-rc.26
+# Escopo atual — 1.0.0-rc.27
+
+A [rc.27](REFLEX_FEEDBACK_RC27.md) refina Reflexos: comando e lado do mouse destacados, retorno dos seis resultados e relatório com contadores separados, tempos válidos e orientação de prática. A espera permanece imprevisível; exercícios, relógios, avaliação guiada, pontuação e dados oficiais são preservados.
 
 A [rc.26](PRECISION_FEEDBACK_RC26.md) melhora a leitura da Precisão: marca interna do próximo alvo, símbolo persistente de atraso, orientação de sequência e confirmação transitória do clique. O resultado separa erros de ordem dos demais cliques errados e sugere a próxima prática. Preserva hitboxes, dificuldade, prazos, pontuação e registros oficiais.
 

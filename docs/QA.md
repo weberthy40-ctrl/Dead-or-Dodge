@@ -49,9 +49,9 @@ Logs e capturas ficam em `artifacts/qa/<execução>/`, ignorado pelo Git. `QA_AR
 | `browser-smoke` | Navegação, 20 níveis de Esquiva e 30 das demais modalidades, quatro diagnósticos, dez remontagens, canvas/RAF, heap e quatro presets gráficos |
 | `browser-native` | IndexedDB nativo: migração, bloqueio, quatro modalidades, backup, conflitos, idempotência, quota/rollback e conquistas |
 | `browser-kiting-controls` | Clique direto, A + clique e A imediato com entrada nativa, uma ordem/um ataque, preferência após reload, salvamento real, filtros e backup com registro antigo |
-| `browser-feedback` | Ataque/cancelamento/abate/derrota em Kiting, quatro grupos de Precisão com erro de ordem nativo, resultado/salvamento/repetição e sinais de Reflexos; relógio controlado no trecho de Precisão |
+| `browser-feedback` | Ataque/cancelamento/abate/derrota em Kiting, quatro grupos de Precisão com erro de ordem nativo, resultado/salvamento/repetição e Reflexos com prática de 22 sinais, minuto oficial em tempo natural, seis resultados, pausa, nota e IndexedDB; relógio controlado só no trecho de Precisão |
 | `browser-dodge` | Sobrevivência 20, acesso livre ao Normal, cinco etapas adaptativas, nível indicado, mobilidade, câmera, revisão e perfil |
-| `browser-production` | Página e versão do build, modelos 3D, orientação/clique fora/ESC de Precisão com foco e retorno ao menu sem canvas retido |
+| `browser-production` | Página e versão do build, modelos 3D, orientação/clique fora/ESC de Precisão, antecipação/pausa de Reflexos e retorno ao menu sem canvas retido |
 
 Gameplay é executado antes de Esquiva, na ordem que reproduzia a interferência de resultados na rc.14. Os contextos isolados devem impedir essa regressão.
 
@@ -76,6 +76,8 @@ Execute `npm run test:isolation`, `npm run test:browser`, `npm run test:storage`
 ## Aceitação manual desktop — pendente
 
 O caso de Precisão do `browser-production` fixa 1366×768 antes dos cliques nativos; as coordenadas desktop não devem ser usadas no viewport padrão de 780×493 do Chromium headless.
+
+Na rc.27, conferir Q/W/E/R, Espaço e F/J no painel de Reflexos, junto dos lados esquerdo/direito do mouse e dos sinais de freio. A tecla do próximo sinal deve ficar oculta durante a espera e a pausa. Não há barra que antecipe o intervalo de espera. Verificar antecipação, escolha incorreta, omissão, impulso, resposta correta e inibição correta; o retorno inferior identifica a rodada anterior. Pausar e retomar pelo botão, depois usar teclado/ESC com foco na área de reação. No resultado, comparar seis contadores, média/mediana/melhor e as rodadas expansíveis com o registro salvo; inibição não recebe 0 ms. Ensaiar 22 sinais sem nota, concluir o minuto oficial, refazer e sair. Repetir níveis 1/10, Leve/Ultra, contraste, texto ampliado e redução de movimento. A avaliação guiada continua com três etapas e nenhum resultado oficial novo.
 
 Na rc.26, conferir a marca interna do próximo alvo de Precisão e o símbolo ! dos atrasados; ambos devem permanecer dentro da esfera, sem área adicional de clique. Esperar o próximo alvo atrasar: ele deve continuar verde, com marca e símbolo. Testar clique fora, ordem incorreta e acerto; a instrução da sequência deve permanecer enquanto a mensagem curta muda. Pausar pelo ESC logo após iniciar/retomar. No resultado, comparar os quatro contadores com as métricas expansíveis, verificar salvamento visível e repetir a mesma condição. O atalho de ensaio deve informar que usa os ajustes técnicos do nível 4. Repetir com Leve e Ultra, níveis 1 e 10, texto ampliado e redução de movimento.
 
