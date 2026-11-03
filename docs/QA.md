@@ -49,9 +49,9 @@ Logs e capturas ficam em `artifacts/qa/<execução>/`, ignorado pelo Git. `QA_AR
 | `browser-smoke` | Navegação, 20 níveis de Esquiva e 30 das demais modalidades, quatro diagnósticos, dez remontagens, canvas/RAF, heap e quatro presets gráficos |
 | `browser-native` | IndexedDB nativo: migração, bloqueio, quatro modalidades, backup, conflitos, idempotência, quota/rollback e conquistas |
 | `browser-kiting-controls` | Clique direto, A + clique e A imediato com entrada nativa, uma ordem/um ataque, preferência após reload, salvamento real, filtros e backup com registro antigo |
-| `browser-feedback` | Ataque/cancelamento/abate/derrota em Kiting, quatro grupos de Precisão e sinais de Reflexos; relógio controlado no trecho de Precisão |
+| `browser-feedback` | Ataque/cancelamento/abate/derrota em Kiting, quatro grupos de Precisão com erro de ordem nativo, resultado/salvamento/repetição e sinais de Reflexos; relógio controlado no trecho de Precisão |
 | `browser-dodge` | Sobrevivência 20, acesso livre ao Normal, cinco etapas adaptativas, nível indicado, mobilidade, câmera, revisão e perfil |
-| `browser-production` | Página e versão do build, carregamento de modelos 3D e retorno ao menu sem canvas retido |
+| `browser-production` | Página e versão do build, modelos 3D, orientação/clique fora/ESC de Precisão com foco e retorno ao menu sem canvas retido |
 
 Gameplay é executado antes de Esquiva, na ordem que reproduzia a interferência de resultados na rc.14. Os contextos isolados devem impedir essa regressão.
 
@@ -74,6 +74,10 @@ chromium --headless --no-sandbox --disable-dev-shm-usage --remote-debugging-addr
 Execute `npm run test:isolation`, `npm run test:browser`, `npm run test:storage`, `npm run test:gameplay` ou `npm run test:dodge`. Use `QA_SKIP_FULLSCREEN=1` no gameplay headless, registrando a exclusão. `CDP_URL` seleciona o endpoint CDP. Os scripts também aceitam a URL do app como argumento: `npm run test:browser -- http://127.0.0.1:5173/`.
 
 ## Aceitação manual desktop — pendente
+
+O caso de Precisão do `browser-production` fixa 1366×768 antes dos cliques nativos; as coordenadas desktop não devem ser usadas no viewport padrão de 780×493 do Chromium headless.
+
+Na rc.26, conferir a marca interna do próximo alvo de Precisão e o símbolo ! dos atrasados; ambos devem permanecer dentro da esfera, sem área adicional de clique. Esperar o próximo alvo atrasar: ele deve continuar verde, com marca e símbolo. Testar clique fora, ordem incorreta e acerto; a instrução da sequência deve permanecer enquanto a mensagem curta muda. Pausar pelo ESC logo após iniciar/retomar. No resultado, comparar os quatro contadores com as métricas expansíveis, verificar salvamento visível e repetir a mesma condição. O atalho de ensaio deve informar que usa os ajustes técnicos do nível 4. Repetir com Leve e Ultra, níveis 1 e 10, texto ampliado e redução de movimento.
 
 Na rc.25, verificar os três comandos de Kiting com A, cursor e clique direito; o alvo selecionado usa círculo fechado e a preparação inimiga usa arco aberto. Conferir texto dentro/fora do alcance, preparação, indicação de movimento imediatamente após o disparo, recuperação curta após cancelamento e pausa. No resultado, verificar causas, amostra curta, nova prática, métricas expansíveis e salvamento. As causas devem permanecer na tela atual e não aparecer nos registros/backups. Repetir com Leve e redução de movimento.
 

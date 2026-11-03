@@ -500,6 +500,29 @@ label,summary{color:#c0d1ed}:is(input,select),.data-controls select{background:#
 .kiting-save-status p { margin:.3rem 0; font-size:.75rem; line-height:1.6; }
 .kiting-evidence { padding:.8rem 0; font-size:.8rem; }
 .kiting-evidence h2 { font-size:1rem; }
+
+/* Precision guidance stays inside the upper quarter reserved by target placement. */
+.precision-guidance { position:fixed; top:calc(25svh - 2.5rem); left:50%; transform:translateX(-50%); display:flex; align-items:center; justify-content:space-between; gap:1.2rem; width:min(1050px,calc(100% - 3rem)); height:2.1rem; padding:.35rem .8rem; border:1px solid #91b8e02b; border-radius:.4rem; background:#111a2eeb; color:#dce6f6; pointer-events:none; font-size:.73rem; }
+.precision-instruction,.precision-feedback { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.precision-instruction { flex:0 1 45%; font-weight:600; }
+.precision-feedback { flex:1; text-align:right; color:#c6d6ee; }
+.precision-guidance[data-mode='priority'] { box-shadow:inset 3px 0 #b6c9e4; }
+.training-screen dialog.precision-result[open] { display:flex; flex-direction:column; gap:1rem; margin:0; overflow:hidden; max-height:85svh; padding:1.5rem; }
+.precision-coaching { margin:1rem 0; padding:1.2rem; border:1px solid #8ab7ec38; border-radius:.6rem; background:linear-gradient(130deg,#20304b77,#141c2e); }
+.precision-coaching h3 { font-size:1.2rem; line-height:1.35; margin:.65rem 0 1rem; }
+.precision-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem; margin:0 0 1rem; }
+.precision-summary-grid>div { padding:.7rem; border:1px solid #9fbde525; border-radius:.35rem; }
+.precision-summary-grid dt { font-size:.7rem; color:#b2c5e0; }
+.precision-summary-grid dd { margin:.4rem 0 0; font-size:1.3rem; font-weight:600; color:#e1efff; font-variant-numeric:tabular-nums; }
+.precision-next-action { font-size:.85rem; line-height:1.7; color:#dceaff; }
+.precision-coaching-note { margin-bottom:0; font-size:.7rem; line-height:1.6; color:#a7bad7; }
+.precision-coaching .status-note { padding:0; margin:.8rem 0; font-size:.75rem; line-height:1.6; }
+.precision-practice-link { margin-top:.5rem; font-size:.8rem; }
+.precision-result-context { margin:0 0 .5rem; font-size:.8rem; color:#c0d4ef; }
+.precision-save-status p { margin:.3rem 0; font-size:.75rem; line-height:1.6; }
+.precision-evidence { padding:.8rem 0; font-size:.8rem; }
+.precision-evidence h2 { font-size:1rem; }
+@media(max-width:700px) { .precision-guidance { gap:.5rem; width:calc(100% - 1.6rem); font-size:.65rem; }.precision-coaching { padding:.9rem; }.precision-summary-grid dt { font-size:.65rem; }.precision-summary-grid dd { font-size:1.1rem; } }
 @media(max-width:700px) {
  .kiting-timing { bottom:7rem; padding:.7rem .8rem; }
  .kiting-coaching { padding:.9rem; }

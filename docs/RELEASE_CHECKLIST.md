@@ -1,13 +1,13 @@
-# Checklist — 1.0.0-rc.25
+# Checklist — 1.0.0-rc.26
 
-Resultados locais de 02/11/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux. A [checklist anterior](history/RELEASE_CHECKLIST-RC1.md) é histórica. Evidência e limites estão em [VALIDATION.md](VALIDATION.md).
+Resultados locais de 03/11/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux. A [checklist anterior](history/RELEASE_CHECKLIST-RC1.md) é histórica. Evidência e limites estão em [VALIDATION.md](VALIDATION.md).
 
 | Critério | Estado | Evidência/limite |
 | --- | --- | --- |
-| Instalação pelo lockfile | PASSOU | 151 pacotes instalados no onboarding; dependências preservadas na rc.25, metadados de versão sincronizados no lockfile |
-| Testes automatizados | PASSOU | 373 testes, 79 arquivos; inclui causas de cancelamento, temporização, orientação, comandos pendentes, marcadores, descarte, postura e formato de registros preservado |
+| Instalação pelo lockfile | PASSOU | 151 pacotes instalados no onboarding; dependências preservadas na rc.26, metadados de versão sincronizados no lockfile |
+| Testes automatizados | PASSOU | 384 testes, 82 arquivos; inclui feedback de Precisão, geometria interna das marcas, ausência de raycast, descarte, contadores separados e registros preservados |
 | Lint | PASSOU | ESLint sem avisos, usando minimatch corrigido |
-| Build | PASSOU COM AVISO | Chunk 3D de 735,87 kB minificados; carregado sob demanda |
+| Build | PASSOU COM AVISO | Chunk 3D de 737,07 kB minificados; carregado sob demanda |
 | Auditoria completa | PASSOU | Zero vulnerabilidades reportadas na consulta |
 | Isolamento de QA | PASSOU | localStorage e progresso oficial não vazam entre contextos; páginas descartadas |
 | IndexedDB nativo | PASSOU | Migração, conflito, idempotência, rollback e conquistas |
@@ -26,16 +26,18 @@ Resultados locais de 02/11/2026, Node 24.19.0/npm 11.9.0 e Chromium 154 em Linux
 | Comandos de Kiting | PASSOU | Três opções com teclado/mouse nativos, uma ordem por ataque, ausência de fila, pausa e preferência |
 | Leitura de Kiting | PASSOU | Seleção separada de ataque inimigo, alcance com texto, fases e recuperação de cancelamento; indicação de movimento desde a confirmação nos três comandos |
 | Orientação de Kiting | PASSOU | Causas observadas, amostra curta, prática sem nota e métricas expansíveis; cancelamento real salvo no IndexedDB sem incluir detalhes transitórios no registro |
+| Leitura de Precisão | PASSOU | Próximo alvo com marca interna, atraso com símbolo, instrução contínua e mensagens por evento; marcas dentro da esfera, sem raycast |
+| Resultado de Precisão | PASSOU | Cliques nativos fora/ordem, quatro grupos, nota preservada, salvamento em IndexedDB sem metadata transitória, ações visíveis e repetição zerada |
 | Contexto de Kiting | PASSOU | Histórico e evolução filtrados, recordes separados, derrota real com comandos registrados e backup de três registros |
 | Backup com séries | PASSOU | Mesclagem idempotente de três registros em IndexedDB real; backup original rc.14 reexportado sem alteração |
 | Tutorial interativo | PASSOU | Movimento e teclas reais, pausa, colisão e repetição; perfil sem resultados oficiais |
 | Esquiva após gameplay | PASSOU | Avaliação adaptativa opcional, escolha livre em Sobrevivência e Normal, mobilidade, feedback, revisão e perfil |
-| Build servido pelo preview | PASSOU | Versão correta, modelos e início de série carregados; cena descartada ao sair |
+| Build servido pelo preview | PASSOU | Versão correta, modelos e série carregados; orientação/clique fora/ESC da Precisão conferidos; cena descartada ao sair |
 | Encerramento do runner | PASSOU | Processos próprios encerrados e diretório temporário removido |
 | Tela cheia interativa | NÃO VERIFICADO | Exige execução com interface e aceitação manual |
 | Windows/Chrome/Edge e hardware real | NÃO VERIFICADO | Roteiro em QA.md |
 | Calibração com jogadores | NÃO VERIFICADO | Escala interna, sem equivalência comprovada ao elo do LoL |
-| CI/Pages remoto | CONSULTAR ACTIONS | Ambos executam npm run check após o push; consulte a execução vinculada ao commit da rc.25 em [Actions](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions). A aprovação local não substitui o resultado remoto nem a conferência do site publicado |
+| CI/Pages remoto | CONSULTAR ACTIONS | Ambos executam npm run check após o push; consulte a execução vinculada ao commit da rc.26 em [Actions](https://github.com/weberthy40-ctrl/Dead-or-Dodge/actions). A aprovação local não substitui o resultado remoto nem a conferência do site publicado |
 | Publicação/restauração do ambiente | NÃO VERIFICADO | Não faz parte desta alteração de código |
 
 Decisão: manter **release candidate**. A experiência de Esquiva e as regressões anteriores passaram nos checks locais; não há certificação de versão final nem alegação de integração com o client do LoL.

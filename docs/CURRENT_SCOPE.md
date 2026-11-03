@@ -1,4 +1,6 @@
-# Escopo atual — 1.0.0-rc.25
+# Escopo atual — 1.0.0-rc.26
+
+A [rc.26](PRECISION_FEEDBACK_RC26.md) melhora a leitura da Precisão: marca interna do próximo alvo, símbolo persistente de atraso, orientação de sequência e confirmação transitória do clique. O resultado separa erros de ordem dos demais cliques errados e sugere a próxima prática. Preserva hitboxes, dificuldade, prazos, pontuação e registros oficiais.
 
 A [rc.25](KITING_FEEDBACK_RC25.md) refina alvo, alcance e ciclo de ataque do Kiting e acrescenta orientação ao resultado. Os cancelamentos recebem causas transitórias observadas; controles, regras físicas, pontuação e registros oficiais continuam preservados.
 
