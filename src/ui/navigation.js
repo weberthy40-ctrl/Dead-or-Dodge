@@ -1,4 +1,5 @@
 import { mountDodgeQuality } from './dodgeQualityScreen.js';
+import { mountHomeHub } from './homeHub.js';
 import { mountDodgeJourney } from './dodgeJourneyScreen.js';
 import { mountChallengeHub } from './challengeHub.js';
 import { mountChallengeScreen } from './challengeScreen.js';
@@ -83,6 +84,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
     }
     const heading = screen.querySelector('h1'); heading.tabIndex = -1; if (focus) heading.focus();
     core.events.emit('navigation:changed', Object.freeze(route));
+    if(route.path==='/'){const home=mountHomeHub({screen,repository,dodgePlacement});cleanupScreen=()=>home.dispose();}
     if(['/journey/dodge','/prepare/dodge'].includes(route.path)){const journey=mountDodgeJourney(screen,{preparation:route.path==='/prepare/dodge'});cleanupScreen=()=>journey.dispose();}
     if(route.path==='/check/dodge'){const quality=mountDodgeQuality({screen,core,loadPreview});cleanupScreen=()=>quality.dispose();}
     if(route.family){const focus=mountChallengeScreen({screen,core,repository,family:route.family,loadPreview});cleanupScreen=()=>focus.dispose();}

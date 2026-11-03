@@ -10,10 +10,12 @@ export function createScreen(document, route, {dodgePlacement=null}={}) {
     const home = createFoundationView(document);
     home.classList.add('home');
     const panel = home.querySelector('section');
-    panel.replaceChildren(element(document,'span','eyebrow','RIFT LAB / TREINAMENTO DE MECÂNICAS'),element(document,'h1','','Mecânica afiada.\nPrecisão arcana.'),element(document,'p','foundation__message','Velocidade, precisão e controle. Entre na arena e transforme cada treino em evolução.'));
+    panel.replaceChildren(element(document,'span','eyebrow','RIFT LAB / TREINAMENTO DE MECÂNICAS'),element(document,'h1','','Mecânica afiada.\nPrecisão arcana.'),element(document,'p','foundation__message','Uma arena para afiar seu controle. Treine uma mecânica por vez, analise a execução e entre na próxima partida com um objetivo.'));
     const actions=element(document,'div','actions');actions.append(link(document,'Começar jornada de Esquiva →','/journey/dodge','button primary'),link(document,'Escolher meu treino','/levels','button'),link(document,'Descobrir meu nível','/diagnostics','button'));panel.append(actions);
     const art=element(document,'div','hero-art');art.setAttribute('aria-hidden','true');art.append(element(document,'span','hero-art__label','A ROTA CENTRAL / DUELISTA ARCANO'),element(document,'span','hero-art__cross','◈'),element(document,'span','hero-art__caption','FOCO. MOVIMENTO. EXECUÇÃO.'));home.append(art);
-    const grid=element(document,'div','home-modes');
+    const context=element(document,'p','home-context','COMPUTADOR · TECLADO E MOUSE · PROGRESSO LOCAL');panel.append(context);
+    const grid=element(document,'section','home-modes');grid.setAttribute('aria-labelledby','home-free-title');
+    const freeTitle=element(document,'h2','home-modes__title','Acesso livre às modalidades');freeTitle.id='home-free-title';grid.append(freeTitle);
     for(const [index,mode]of MODALITIES.entries()){
       const card=link(document,'',`/train/${mode.id}/1`,'home-mode');card.dataset.mode=mode.id;card.append(element(document,'span','eyebrow',`0${index+1} / ${mode.icon}`),element(document,'h2','',mode.title),element(document,'p','muted',mode.description),element(document,'span','home-mode__action','Treinar agora →'));grid.append(card);
     }

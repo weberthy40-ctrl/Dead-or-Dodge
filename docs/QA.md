@@ -75,6 +75,8 @@ Execute `npm run test:isolation`, `npm run test:browser`, `npm run test:storage`
 
 ## Aceitação manual desktop — pendente
 
+A central da rc.23 também é verificada por `browser-smoke`: quatro focos selecionáveis por teclado nativo, três atalhos por foco, retomada com IndexedDB real sem alterar o registro, preservação do nível e ausência de início automático. A página inicial entra nas capturas e verificações de overflow em 390, 1366 e 1920 pixels, incluindo texto ampliado e alto contraste.
+
 Matriz inicial: Chrome e Edge atuais no Windows; 1366×768, 1920×1080 e 2560×1440; notebook com GPU integrada e computador de referência. Registrar versão do navegador, hardware, qualidade e cenário. Outros sistemas/navegadores entram no suporte após validação explícita.
 
 1. **Entrada e controles:** abrir o tutorial de Esquiva, concluir as quatro etapas, falhar no aviso, repetir, pausar e sair sem criar resultado oficial. Conferir também o botão de câmera e os marcadores clicáveis da revisão. Depois, abrir as quatro modalidades e entender como começar. Testar direito para mover, parada, Flash, dash, Y, Espaço e zoom; conferir teclas personalizadas e foco em inputs. No Kiting, testar os três comandos: Clique direto, A + clique e A imediato. Conferir confirmação armada, cursor fora da arena, ausência de repetição automática e descarte na pausa/perda de foco.

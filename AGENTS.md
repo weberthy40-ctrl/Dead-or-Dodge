@@ -9,3 +9,10 @@
 - As regras atuais estão em `docs/CURRENT_SCOPE.md`; comandos de QA e limites em `docs/QA.md`. Preserve notas e backups existentes. Documente mudanças nos contratos de pontuação e persistência.
 
 - A direção de produto atual é [RIFT LAB](docs/RIFT_LAB_VISION.md). Jornada e avaliação são opcionais; o Normal aceita escolha livre de níveis. Preserve a resposta dos controles e a independência entre arte, colisões e pontuação. O protagonista usa base KayKit CC0 adaptada; mantenha os créditos e distinga componentes originais de reutilizados.
+
+## Evolução comercial
+
+- Público confirmado: jogadores de MOBA no PC, com treino individual e compra do produto. Evoluir a identidade de fantasia arcana do RIFT LAB.
+- Avançar por melhorias incrementais de apresentação, jogabilidade e treinamento. Reaproveitar os sistemas aprovados. Consulte [o plano de evolução](docs/PRODUCT_EVOLUTION.md).
+- Consultar o proprietário antes de remover funcionalidades. Decisões de produto que dependam de preferência devem ser apresentadas como questionário; continuar trabalho independente enquanto aguarda resposta.
+- Validar e enviar mudanças relevantes ao GitHub automaticamente, conforme o procedimento de publicação acima; acompanhar CI e Pages. Nunca declarar prontidão comercial apenas porque os testes automatizados passaram.

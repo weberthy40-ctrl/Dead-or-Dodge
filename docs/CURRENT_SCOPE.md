@@ -1,4 +1,6 @@
-# Escopo atual — 1.0.0-rc.22
+# Escopo atual — 1.0.0-rc.23
+
+A [rc.23](TRAINING_HUB_RC23.md) acrescenta a central de treino à página inicial: quatro focos com percursos opcionais e retomada no nível do último treino oficial local. Preserva regras, pontuação, dados e exercícios existentes. A direção comercial e a sequência proposta de melhorias estão em [PRODUCT_EVOLUTION.md](PRODUCT_EVOLUTION.md).
 
 Esta é a referência das regras atuais. A [rc.22](SHARING_ALERTS_RC22.md) melhora o compartilhamento local dos relatórios e os indicadores de preparação na borda da câmera. A [rc.21](QUALITY_RC21.md) acrescenta verificação local de fluidez, sinais de preparação distintos, movimento cosmético do Duelista e relatos opcionais de jogadores. A [rc.20](IMPACTS_COACHING_RC20.md) acrescenta confirmação visual de impactos, captura final na revisão e objetivos de prática com comparação em memória. A direção vigente é [RIFT LAB](RIFT_LAB_VISION.md); a [rc.19](RIFT_VERTICAL_RC19.md) integra o protótipo vertical de Esquiva, com jornada opcional e acesso livre ao Normal. Documentos de blocos e revisões anteriores são históricos; não substituem este escopo nem o [QA atual](QA.md). A [rc.18](KITING_CONTROLS_RC18.md) acrescenta controles e contexto de comparação ao Kiting. A [rc.17](DODGE_SERIES_RC17.md) acrescenta séries reproduzíveis ao aprendizado e à análise da [rc.16](DODGE_EXPERIENCE_RC16.md), preservando as regras de dificuldade da rc.14 e as correções da [rc.15](FOUNDATION_RC15.md).
 

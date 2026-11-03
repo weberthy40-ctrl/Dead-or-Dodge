@@ -28,7 +28,7 @@ describe('fundação da aplicação', () => {
       'Mecânica afiada.\nPrecisão arcana.',
     );
     expect(root.querySelector('main p')?.textContent).toBe(
-      'Velocidade, precisão e controle. Entre na arena e transforme cada treino em evolução.',
+      'Uma arena para afiar seu controle. Treine uma mecânica por vez, analise a execução e entre na próxima partida com um objetivo.',
     );
     expect(root.querySelector('main').getAttribute('aria-labelledby')).toBe(
       root.querySelector('h1').id,
