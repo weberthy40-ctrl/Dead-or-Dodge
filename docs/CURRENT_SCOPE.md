@@ -1,4 +1,6 @@
-# Escopo atual — 1.0.0-rc.24
+# Escopo atual — 1.0.0-rc.25
+
+A [rc.25](KITING_FEEDBACK_RC25.md) refina alvo, alcance e ciclo de ataque do Kiting e acrescenta orientação ao resultado. Os cancelamentos recebem causas transitórias observadas; controles, regras físicas, pontuação e registros oficiais continuam preservados.
 
 A [rc.24](DUELIST_READABILITY_RC24.md) melhora a leitura do Duelista e do terreno na Esquiva, acrescenta orientação no anel de seleção e mistura corrida/parada sem reiniciar os clipes. O tratamento é cosmético e preserva os contratos físicos e de dados.
 

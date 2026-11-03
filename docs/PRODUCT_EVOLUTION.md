@@ -18,6 +18,8 @@ A [rc.24](DUELIST_READABILITY_RC24.md) entrega uma primeira camada de refinament
 
 ## Linhas de evolução
 
+A [terceira entrega, rc.25](KITING_FEEDBACK_RC25.md), aplica o refinamento ao combate de Kiting: alvo, alcance, fases, resposta do disparo e orientação no resultado. Preserva os três comandos e os contratos oficiais de dados.
+
 Os itens 1 e 2 receberam o incremento inicial da rc.24 e continuam abertos a refinamento com avaliação do proprietário e de jogadores.
 
 | Ordem | Área | Resultado a buscar | Evidência para aceitar |

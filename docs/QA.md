@@ -75,6 +75,8 @@ Execute `npm run test:isolation`, `npm run test:browser`, `npm run test:storage`
 
 ## Aceitação manual desktop — pendente
 
+Na rc.25, verificar os três comandos de Kiting com A, cursor e clique direito; o alvo selecionado usa círculo fechado e a preparação inimiga usa arco aberto. Conferir texto dentro/fora do alcance, preparação, indicação de movimento imediatamente após o disparo, recuperação curta após cancelamento e pausa. No resultado, verificar causas, amostra curta, nova prática, métricas expansíveis e salvamento. As causas devem permanecer na tela atual e não aparecer nos registros/backups. Repetir com Leve e redução de movimento.
+
 Na rc.24, conferir também a distinção entre personagem, piso e avisos nos quatro presets; a seta do anel acompanha a orientação e não representa hitbox. Alternar direito → S → direito, mudanças curtas de direção, dash e Flash; a resposta física deve continuar imediata. Comparar com redução de movimento e pausar durante a corrida/dash para verificar congelamento. Julgar clareza e sensação em hardware real, sem tratar capturas ou contagens de draw calls como aprovação de fluidez.
 
 A central da rc.23 também é verificada por `browser-smoke`: quatro focos selecionáveis por teclado nativo, três atalhos por foco, retomada com IndexedDB real sem alterar o registro, preservação do nível e ausência de início automático. A página inicial entra nas capturas e verificações de overflow em 390, 1366 e 1920 pixels, incluindo texto ampliado e alto contraste.

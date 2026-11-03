@@ -470,6 +470,42 @@ label,summary{color:#c0d1ed}:is(input,select),.data-controls select{background:#
 .home .home-mode p { min-height:3rem; font-size:.8rem; }
 .home .home-footer { color:#9aabc4; margin:0; padding:0 0 1rem; }
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+
+/* Kiting: one readable attack cycle; availability follows the simulation clocks. */
+.kiting-timing { --phase-color:#a5d7ff; position:fixed; bottom:6.8rem; left:50%; transform:translateX(-50%); width:min(500px,calc(100% - 2rem)); padding:.8rem 1rem; border:1px solid #8cb8e940; border-left:3px solid var(--phase-color); border-radius:.6rem; background:#101a2bf2; pointer-events:none; }
+.kiting-timing[data-phase='windup'] { --phase-color:#ffcf86; }
+.kiting-timing[data-phase='cancelled'] { --phase-color:#ff9ab6; }
+.kiting-timing[data-phase='paused'] { --phase-color:#bec8dc; }
+.kiting-cycle { display:flex; justify-content:space-between; list-style:none; gap:.75rem; margin:0 0 .5rem; padding:0; counter-reset:attack-step; }
+.kiting-cycle li { counter-increment:attack-step; color:#9cacc5; font-size:.62rem; letter-spacing:.08em; }
+.kiting-cycle li::before { content:counter(attack-step) ' / '; color:#a6bcda; }
+.kiting-cycle li[aria-current] { color:var(--phase-color); font-weight:700; }
+.kiting-cycle li[data-complete='true']::before { content:'✓ / '; color:#b7e3ff; }
+.training-screen .kiting-timing .kiting-phase { position:static; transform:none; max-width:none; width:auto; border:0; border-radius:0; margin:0; padding:0; color:var(--phase-color); background:none; font-size:.9rem; text-align:left; }
+.kiting-phase-hint { margin:.35rem 0 .6rem; color:#c1cfe3; font-size:.72rem; line-height:1.5; }
+.kiting-target-hint { margin:.5rem 0 0; color:#b8cce7; font-size:.65rem; line-height:1.5; }
+.training-screen .kiting-timing progress { position:static; display:block; width:100%; height:5px; margin:0; accent-color:var(--phase-color); }
+.kiting-coaching { margin:1rem 0; padding:1.2rem; border:1px solid #8ab7ec38; border-radius:.6rem; background:linear-gradient(130deg,#20304b77,#141c2e); }
+.kiting-coaching h3 { font-size:1.2rem; line-height:1.35; margin:.65rem 0 1rem; }
+.kiting-summary-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem; margin:0 0 1rem; }
+.kiting-summary-grid>div { padding:.7rem; border:1px solid #9fbde525; border-radius:.35rem; }
+.kiting-summary-grid dt { font-size:.7rem; color:#b2c5e0; }
+.kiting-summary-grid dd { margin:.4rem 0 0; font-size:1.3rem; font-weight:600; color:#e1efff; font-variant-numeric:tabular-nums; }
+.kiting-cancel-summary,.kiting-next-action { font-size:.85rem; line-height:1.7; color:#c7d9f2; }
+.kiting-next-action { color:#dcEaff; }
+.kiting-coaching-note { margin-bottom:0; font-size:.7rem; line-height:1.6; color:#a7bad7; }
+.kiting-coaching .status-note { padding:0; margin:.8rem 0; font-size:.75rem; line-height:1.6; }
+.kiting-practice-link { margin-top:.5rem; font-size:.8rem; }
+.kiting-result-context { margin:0 0 .5rem; font-size:.8rem; color:#c0d4ef; }
+.kiting-save-status p { margin:.3rem 0; font-size:.75rem; line-height:1.6; }
+.kiting-evidence { padding:.8rem 0; font-size:.8rem; }
+.kiting-evidence h2 { font-size:1rem; }
+@media(max-width:700px) {
+ .kiting-timing { bottom:7rem; padding:.7rem .8rem; }
+ .kiting-coaching { padding:.9rem; }
+ .kiting-summary-grid dt { font-size:.65rem; }
+ .kiting-summary-grid dd { font-size:1.1rem; }
+}
 @media(max-width:1100px) {
   .hub-body { grid-template-columns:minmax(0,1fr); }
   .hub-recent { display:block; }

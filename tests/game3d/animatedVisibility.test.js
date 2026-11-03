@@ -18,10 +18,10 @@ it('keeps the real knight within its world pose through running, idle and direct
  }
  expect(actionSpy).toHaveBeenCalledTimes(2);const player=createCharacter({dodge:true});player.applyAssets({knight:asset});for(let i=0;i<60;i++){const at={x:Math.sin(i*.1)*3,z:Math.cos(i*.1)*3},angle=i*.12;player.setPose(at,angle);if(i===10)player.onAbility('dash');player.animate({moving:i<40,state:'running'},.05);expect(player.group.position.x).toBe(at.x);expect(player.group.position.z).toBe(at.z);expect(player.group.rotation.y).toBe(angle);}const pose=player.group.position.clone();player.animate({moving:true,state:'paused'},.1);expect(player.group.position.equals(pose)).toBe(true);player.dispose();
  const transforms=group=>{const values=[];group.traverse(node=>values.push([...node.position.toArray(),...node.quaternion.toArray(),...node.scale.toArray()]));return values;};
- for(const reducedMotion of [false,true]){
-  const actor=createCharacter({dodge:true,reducedMotion});actor.applyAssets({knight:asset});actor.setPose({x:2,z:3},.7);
-  const neutral=transforms(actor.group);actor.onAbility('dash');actor.animate({moving:true,state:'running'},.05);
-  if(reducedMotion)expect(transforms(actor.group)).toEqual(neutral);
+ for(const settings of [{dodge:true,reducedMotion:false},{dodge:true,reducedMotion:true},{kiting:true,reducedMotion:false},{kiting:true,reducedMotion:true}]){
+  const actor=createCharacter(settings);actor.applyAssets({knight:asset});actor.setPose({x:2,z:3},.7);
+  const neutral=transforms(actor.group);actor.onAbility(settings.kiting?'attack':'dash');actor.animate({moving:true,attackPhase:'windup',state:'running'},.05);
+  if(settings.reducedMotion)expect(transforms(actor.group)).toEqual(neutral);
   const frozen=transforms(actor.group);actor.animate({moving:true,state:'paused'},.1);
   expect(transforms(actor.group)).toEqual(frozen);expect(actor.group.position.toArray()).toEqual([2,0,3]);expect(actor.group.rotation.y).toBe(.7);actor.dispose();
  }

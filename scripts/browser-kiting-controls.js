@@ -25,15 +25,18 @@ try{
   await page.evaluate(`(()=>{window.qaClock=performance.now();const request=window.requestAnimationFrame.bind(window);window.qaRestoreClock=()=>{window.requestAnimationFrame=request;delete performance.now;};window.qaNextFrame=()=>new Promise(resolve=>request(()=>resolve(true)));window.requestAnimationFrame=callback=>request(()=>callback(window.qaClock));Object.defineProperty(performance,'now',{configurable:true,value:()=>window.qaClock});})()`);await page.evaluate('qaNextFrame()');
   const point=await page.evaluate("(()=>{const r=document.querySelector('.stage canvas').getBoundingClientRect();return {x:r.x+r.width*.7,y:r.y+r.height*.65};})()");
   await page.send('Input.dispatchMouseEvent',{type:'mouseMoved',...point});
-  if(profile!=='direct'){await page.mouse(point);await pause(150);assert.equal(await count(),0);await page.key('KeyA','a');}
+  if(profile!=='direct'){await page.mouse(point);await pause(150);assert.equal(await count(),0);await page.key('KeyA','a');if(profile==='attack-click')await page.waitFor("document.querySelector('.kiting-timing')?.dataset.phase==='armed'");}
   if(profile!=='quick-attack')await page.mouse(point);
-  await advance(300);await page.waitFor(`${hud}.includes('1 ATAQUES')`);
+  await page.waitFor("document.querySelector('.kiting-timing')?.dataset.phase==='windup'");await advance(100);assert.ok(await page.evaluate("document.querySelector('.kiting-timing progress').value>0&&document.querySelector('.kiting-timing progress').value<1"));
+  await advance(200);await page.waitFor(`${hud}.includes('1 ATAQUES')`);assert.equal(await page.evaluate("document.querySelector('.kiting-cycle [aria-current]')?.textContent"),'Mover');assert.equal(await page.evaluate("document.querySelector('.kiting-phase').textContent"),'Disparo confirmado');
   if(profile!=='direct'){await page.key('KeyA','a');if(profile==='attack-click')await page.mouse(point);}else await page.mouse(point);
   await advance(1500);assert.equal(await count(),1,'Um comando durante recuperação não agenda outro disparo.');
+  if(profile!=='direct'){await page.key('KeyA','a');if(profile==='attack-click')await page.mouse(point);}else await page.mouse(point);
+  await page.waitFor("document.querySelector('.kiting-timing')?.dataset.phase==='windup'");await page.mouse({x:point.x+25,y:point.y},'right');await page.waitFor("document.querySelector('.kiting-timing')?.dataset.phase==='cancelled'");assert.equal(await page.evaluate("document.querySelector('.kiting-phase-hint').textContent.includes('Movimento, parada ou Flash')"),true);assert.equal(await count(),1);await advance(400);assert.equal(await page.evaluate("document.querySelector('.kiting-timing').dataset.phase"),'ready');
   if(profile==='attack-click'){
    await page.key('KeyA','a');await page.key('Escape','Escape');await page.waitFor("document.querySelector('.app-shell').dataset.session==='paused'");await page.key('Escape','Escape');await page.mouse(point);await advance(400);assert.equal(await count(),1,'Pausa descarta comando armado.');
   }
-  report[profile]={oneCommandOneShot:true,cooldownQueue:false,selectFrozen:true,clock:'Native inputs with controlled simulation time for cooldown boundaries'};
+  report[profile]={oneCommandOneShot:true,cooldownQueue:false,selectFrozen:true,phaseFeedback:true,cancellationReason:'command',clock:'Native inputs with controlled simulation time for cooldown boundaries'};
   if(process.env.QA_ARTIFACT_DIR){await mkdir(process.env.QA_ARTIFACT_DIR,{recursive:true});await writeFile(`${process.env.QA_ARTIFACT_DIR}/${profile}.png`,Buffer.from((await page.send('Page.captureScreenshot',{format:'png'})).data,'base64'));}
   await page.evaluate('qaRestoreClock()');await page.go('/');
  }

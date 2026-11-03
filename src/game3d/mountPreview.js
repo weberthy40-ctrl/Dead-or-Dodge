@@ -49,12 +49,13 @@ export function mountPreview(container, { createRenderer = options => new THREE.
     if (mounted.get(container) === api) mounted.delete(container);
   } };
   mounted.set(container,api);
+  api.getCommandState=()=>input?.getCommandState?.()??null;
   try {
     renderer = createRenderer({ antialias: graphics.antialias, alpha: false });
     applyGraphicsQuality(renderer,preferences.quality,document.defaultView?.devicePixelRatio||1);
     renderer.domElement.setAttribute('aria-label','Campo de treino com personagens animados');
     container.append(renderer.domElement);
-    character = createCharacter({reducedMotion,dodge});
+    character = createCharacter({reducedMotion,dodge,kiting:exercise?.kind==='kiting'});
     if(!['precision','reflex'].includes(exercise?.kind)){arena=dodge?createDodgeArena({quality:preferences.quality,reducedMotion}):createArena({document,quality:preferences.quality});scene.add(arena.group,character.group);}
     else if(document.defaultView.CanvasRenderingContext2D){
       const c=document.createElement('canvas');c.width=1280;c.height=900;const ctx=c.getContext('2d');
@@ -69,7 +70,7 @@ export function mountPreview(container, { createRenderer = options => new THREE.
     observer = ResizeObserverClass ? new ResizeObserverClass(resize) : undefined; observer?.observe(container);
     document.addEventListener('visibilitychange',resize); document.defaultView?.addEventListener('resize',resize);
     renderer.domElement.addEventListener('webglcontextlost',lost); resize();
-    if (exercise) visuals=exercise.kind==='precision'?createPrecisionVisuals(scene,camera,exercise):exercise.kind==='kiting'?createKitingVisuals(scene):exercise.kind==='reflex'?{sync(){},dispose(){}}:createDodgeVisuals(scene,{camera,container,reducedMotion,effects:graphics.effects,quality:preferences.quality});
+    if (exercise) visuals=exercise.kind==='precision'?createPrecisionVisuals(scene,camera,exercise):exercise.kind==='kiting'?createKitingVisuals(scene,{reducedMotion}):exercise.kind==='reflex'?{sync(){},dispose(){}}:createDodgeVisuals(scene,{camera,container,reducedMotion,effects:graphics.effects,quality:preferences.quality});
     if(dodge&&controls&&events&&session){impactPresentation=createImpactPresentation({events,attemptId:session.snapshot().id,getSnapshot:()=>exercise.snapshot()});const sync=visuals.sync;visuals.sync=(s,...args)=>sync({...s,impactEchoes:impactPresentation.sample(s.elapsed)},...args);}
     if(exercise)visuals.sync(exercise.snapshot(),{x:0,z:0});
     if(exercise)feedback=createFeedbackVisuals({scene,events,attemptId:session?.snapshot().id,enabled:graphics.effects,reducedMotion,position:()=>exercise.kind==='kiting'?exercise.snapshot().target.position:input?.movement.snapshot().position??{x:0,z:0}});

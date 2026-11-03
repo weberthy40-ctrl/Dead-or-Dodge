@@ -25,10 +25,11 @@ export function attachPreviewControls({container,renderer,camera,character,rende
   const running=()=>!session || session.snapshot().state==='running';
   const kiting=exercise?.kind==='kiting'?createKitingCommands({exercise,movement,isRunning:running,profile:exercise.snapshot().controlProfile}):null;
   const unsubscribe=events?.on?.('session:changed',s=>{if(kiting&&s.id===session?.snapshot().id&&s.state!=='running'){kiting.cancel();range();}});
+  const stopAttackFeedback=kiting?events?.on?.('kiting:confirmed',event=>{if(event.attemptId===session?.snapshot().id&&running())character.onAbility?.('attack');}):null;
   function range(){visuals?.setRangeVisible?.(Boolean(kiting?.snapshot().rangeVisible));}
   const editable=target=>target?.closest?.('input,textarea,select,button,a,dialog,[contenteditable="true"]');
   function pose(dt=0,updateView=true,viewDelta=dt) {
-    kiting?.update();if(running()) movement.update(dt);
+    kiting?.update();if(kiting)range();if(running()) movement.update(dt);
     const snapshot=movement.snapshot(),combat=exercise?.kind==='kiting'?exercise.snapshot():null;
     if(dodge){const vitals=exercise.snapshot();character.setHealthVisible?.(Boolean(vitals.maxLives));if(vitals.maxLives)character.setHealth?.(vitals.lives/vitals.maxLives);}
     if(combat?.maxHealth)character.setHealth?.(combat.health/combat.maxHealth);
@@ -119,7 +120,7 @@ export function attachPreviewControls({container,renderer,camera,character,rende
   window.addEventListener('keyup',keyup);
   canvas.addEventListener('pointerdown',down);canvas.addEventListener('contextmenu',context);canvas.addEventListener('pointermove',pointer);canvas.addEventListener('pointerleave',leave);canvas.addEventListener('wheel',wheel,{passive:false});
   window.addEventListener('keydown',key);window.addEventListener('blur',suspend);document.addEventListener('visibilitychange',visibility);
-  const api = {movement,controller,dispose(){if(disposed)return;unsubscribe?.();kiting?.cancel();disposed=true;if(frame!==null)cancelFrame(frame);
+  const api = {movement,controller,getCommandState:()=>kiting?.snapshot()??null,dispose(){if(disposed)return;unsubscribe?.();stopAttackFeedback?.();kiting?.cancel();disposed=true;if(frame!==null)cancelFrame(frame);
     canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('contextmenu',context);canvas.removeEventListener('pointermove',pointer);canvas.removeEventListener('pointerleave',leave);canvas.removeEventListener('wheel',wheel);
     window.removeEventListener('keyup',keyup);visuals?.setRangeVisible?.(false);window.removeEventListener('keydown',key);window.removeEventListener('blur',suspend);document.removeEventListener('visibilitychange',visibility);status.remove();ability.remove();cameraButton?.remove();
   }};

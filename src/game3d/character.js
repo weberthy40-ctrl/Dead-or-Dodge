@@ -3,8 +3,9 @@ import { ARENA,isInsideArena } from './spatial.js';
 import { createAnimatedModel } from './sceneAssets.js';
 import { disposeObject } from './resources.js';
 import { createDuelistMotion } from './duelistMotion.js';
+import { createKitingMotion } from './kitingMotion.js';
 /** Original articulated sentinel; geometry is cosmetic and does not define the collision radius. */
-export function createCharacter({position=ARENA.center,rotation=0,scale=1,reducedMotion=false,enemy=false,caster=false,ranged=false,dodge=false}={}){
+export function createCharacter({position=ARENA.center,rotation=0,scale=1,reducedMotion=false,enemy=false,caster=false,ranged=false,dodge=false,kiting=false}={}){
  if(!isInsideArena(position)||!Number.isFinite(rotation)||!Number.isFinite(scale)||scale<=0)throw new TypeError('Invalid character pose.');
  const group=new THREE.Group(),limbs=[];group.userData.ranged=ranged;
  const armor=new THREE.MeshStandardMaterial({color:enemy?0x953e6f:0xa7b7d3,metalness:.45,roughness:.38});
@@ -35,7 +36,7 @@ export function createCharacter({position=ARENA.center,rotation=0,scale=1,reduce
  const shield=sphere(.4,1,.95,.24,cloth,-.76,1.1,.23);shield.rotation.y=-.3;shield.visible=enemy;
  sphere(.15,1,1,.3,gold,-.76,1.1,.34);
  const ring=new THREE.Mesh(new THREE.RingGeometry(.62,.68,48),new THREE.MeshBasicMaterial({color:enemy?0xff709f:0x63ccff,transparent:true,opacity:.7,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.035;ring.raycast=()=>{};group.add(ring);
- if(dodge&&!enemy){
+ if((dodge||kiting)&&!enemy){
   ring.name='duelist-selection-ring';ring.material.color.setHex(0xa5e4ff);ring.material.opacity=.95;ring.material.toneMapped=false;ring.material.depthWrite=false;ring.material.forceSinglePass=true;ring.renderOrder=2;
   const backing=new THREE.Mesh(new THREE.RingGeometry(.59,.73,48),new THREE.MeshBasicMaterial({color:0x091321,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));backing.name='duelist-selection-backing';backing.rotation.x=-Math.PI/2;backing.position.y=.03;backing.raycast=()=>{};backing.renderOrder=1;group.add(backing);
   const heading=new THREE.BufferGeometry();heading.setAttribute('position',new THREE.Float32BufferAttribute([-.13,.036,.82,0,.036,1.03,.13,.036,.82],3));
@@ -49,17 +50,18 @@ export function createCharacter({position=ARENA.center,rotation=0,scale=1,reduce
  if(caster){const staff=new THREE.Mesh(new THREE.CylinderGeometry(.055,.08,2.5,12),gold.clone()),gem=new THREE.Mesh(new THREE.IcosahedronGeometry(.26,1),glow.clone());staff.position.set(.85,1.2,.3);gem.position.set(.85,2.55,.3);staff.castShadow=true;group.add(staff,gem);}
  let disposed=false,phase=0,animated=null,ability=null,abilityRemaining=0;
  const locomotion=dodge&&!enemy?createDuelistMotion():null;
+ const attackMotion=kiting&&!enemy?createKitingMotion():null;
  function setPose({x,z},angle=group.rotation.y){if(![x,z,angle].every(Number.isFinite))throw new TypeError('Invalid visual pose.');group.position.set(x,ARENA.groundY,z);group.rotation.y=angle;}
  setPose(position,rotation);group.scale.setScalar(scale);
  return {group,setPose,onAbility(type){ability=type;abilityRemaining=.22;},setAccent(hex){const color=new THREE.Color(hex);group.traverse(node=>{if(!node.isMesh||!node.material?.color)return;const m=node.material;if(!m.userData.baseTint)m.userData.baseTint=m.color.clone();m.color.copy(m.userData.baseTint).lerp(color,.38);});ring.material.color.copy(color);},setHealthVisible(visible){health.visible=Boolean(visible)&&!caster;},setHealth(ratio){health.scale.x=1.5*Math.max(.02,Math.min(1,Number.isFinite(ratio)?ratio:1));},applyAssets(assets){
-  if(disposed||animated)return;const nextModel=createAnimatedModel(enemy&&ranged?assets.ranger:assets.knight,{enemy,caster,ranged,dodge});const original=new THREE.Group();for(const child of [...group.children])if(child.userData.rest){group.remove(child);original.add(child);}disposeObject(original);limbs.length=0;
+  if(disposed||animated)return;const nextModel=createAnimatedModel(enemy&&ranged?assets.ranger:assets.knight,{enemy,caster,ranged,dodge,kiting});const original=new THREE.Group();for(const child of [...group.children])if(child.userData.rest){group.remove(child);original.add(child);}disposeObject(original);limbs.length=0;
   animated=nextModel;group.add(animated.root);
   const proxy=new THREE.Mesh(new THREE.CapsuleGeometry(.55,1.35,4,8),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));proxy.position.y=1.25;proxy.userData.rest=true;group.add(proxy);group.userData.model=enemy?(ranged?'ranger':'knight'):'arcane-duelist';
  },animate({moving=false,attackPhase,state='running'}={},delta=0){
   if(disposed||state==='paused'||delta<=0&&['running','countdown'].includes(state))return;
   abilityRemaining=Math.max(0,abilityRemaining-delta);if(!abilityRemaining)ability=null;
   if(reducedMotion||!['running','countdown'].includes(state)){for(const limb of limbs)limb.mesh.rotation.x=0;if(animated){animated.root.rotation.x=animated.root.rotation.z=0;}return;}
-  if(animated){const motion=locomotion?.update({angle:group.rotation.y,moving,ability,reducedMotion},delta);animated.root.rotation.x=motion?.pitch??(ability==='dash'?-.14*Math.sin(Math.PI*abilityRemaining/.22):0);animated.root.rotation.z=motion?.roll??0;animated.update({moving,attackPhase,reducedMotion,ability,locomotion:motion},delta);return;}
+  if(animated){const motion=locomotion?.update({angle:group.rotation.y,moving,ability,reducedMotion},delta);animated.root.rotation.x=attackMotion?attackMotion.update({phase:attackPhase,confirmed:ability==='attack',reducedMotion},delta):motion?.pitch??(ability==='dash'?-.14*Math.sin(Math.PI*abilityRemaining/.22):0);animated.root.rotation.z=motion?.roll??0;animated.update({moving,attackPhase,reducedMotion,ability,locomotion:motion},delta);return;}
   phase+=Math.min(.1,Math.max(0,delta))*13;
   for(const limb of limbs)limb.mesh.rotation.x=(moving?Math.sin(phase)*.44*limb.side*(limb.arm?-1:1):0)+(limb.arm?(attackPhase==='windup'?-.75:attackPhase==='recovery'?.25:0):0);
  },dispose(){if(disposed)return;disposed=true;animated?.dispose();disposeObject(group);barTexture.dispose();limbs.length=0;}};
