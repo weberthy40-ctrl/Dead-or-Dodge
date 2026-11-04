@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { checkTrainingFlow } from './training-flow.js';
 import { GAME_VERSION } from '../src/app/version.js';
 import { openBrowserPage } from './cdp.js';
 
@@ -42,6 +43,7 @@ try {
   await page.waitFor("!document.querySelector('.reflex-response-feedback').hidden&&document.querySelector('.reflex-response-feedback').dataset.status==='anticipated'");
   await page.key('Escape');await page.waitFor("document.querySelector('.reflex-signal').dataset.phase==='paused'");
   await page.go('/');assert.equal(await page.evaluate("document.querySelectorAll('canvas').length"),0);
+  const trainingFlow=await checkTrainingFlow(page,{matrix:[[1366,768]]});
   assert.deepEqual(page.errors, []);
-  console.log(JSON.stringify({ status: 'PASSOU', version: GAME_VERSION, productionAssets: true, sceneDisposed: true }, null, 2));
+  console.log(JSON.stringify({ status: 'PASSOU', version: GAME_VERSION, productionAssets: true, sceneDisposed: true, trainingFlow }, null, 2));
 } finally { await page.close(); }

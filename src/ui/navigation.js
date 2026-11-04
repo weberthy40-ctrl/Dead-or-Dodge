@@ -5,6 +5,7 @@ import { mountChallengeHub } from './challengeHub.js';
 import { mountChallengeScreen } from './challengeScreen.js';
 import { mountDodgeFeedback } from './dodgeFeedback.js';
 import { mountDodgeTutorial } from './dodgeTutorialScreen.js';
+import { mountTrainingPresentation } from './trainingPresentation.js';
 import { mountDodgeReady } from './dodgeReady.js';
 import { mountArenaInputGuard } from '../game3d/arenaInputGuard.js';
 import { readDodgePlacement,advanceDodgePlacement } from '../progression/dodgePlacement.js';
@@ -61,14 +62,14 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
   let exercise;
   let rules;
   let telemetry;
-  let stopArenaContext,readyPanel;
+  let stopArenaContext,readyPanel,trainingPresentation;
   let dodgeRecording,dodgeReview,stopDodgeRecording;
   let cleanupScreen = () => {};
   function skipContent(event) { event.preventDefault(); host.querySelector('h1')?.focus(); }
   function render(focus = true) {
     const renderRevision = ++revision;audio.stopAll();stopArenaContext?.();stopArenaContext=undefined;
     dodgeReview?.dispose();dodgeReview=undefined;stopDodgeRecording?.();stopDodgeRecording=undefined;dodgeRecording?.clear();dodgeRecording=undefined;
-    readyPanel?.dispose();readyPanel=undefined;preview?.dispose(); preview = undefined; cleanupScreen(); cleanupScreen = () => {}; rules?.dispose(); rules=undefined; telemetry?.dispose();telemetry=undefined; session?.dispose(); session = undefined; exercise?.dispose(); exercise = undefined;
+    trainingPresentation?.dispose();trainingPresentation=undefined;readyPanel?.dispose();readyPanel=undefined;preview?.dispose(); preview = undefined; cleanupScreen(); cleanupScreen = () => {}; rules?.dispose(); rules=undefined; telemetry?.dispose();telemetry=undefined; session?.dispose(); session = undefined; exercise?.dispose(); exercise = undefined;
     let route = resolveRoute(window.location.hash);const dodgePlacement=readDodgePlacement(preferencesStorage);
     if(route.mode==='normal'&&route.level===null){const level=dodgePlacement?.level??1;route={...route,level,path:`/play/dodge/normal/${level}`};window.history.replaceState(null,'',`#${route.path}`);}
     const isDodge = Boolean(route.mode);
@@ -118,7 +119,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
       const analyze=element(document,'button','button dodge-analyze','Encerrar e analisar');analyze.type='button';analyze.hidden=!rules;analyze.addEventListener('click',()=>{rules?.complete();telemetry?.step(0);updateSession();});
       pause.addEventListener('click',()=>{if(session?.snapshot().state==='paused'){session.resume();screen.querySelector('.stage canvas')?.focus({preventScroll:true});}else session?.pause();});
       updateSession = () => {if(!session)return; const s=session.snapshot();status.textContent=s.state==='countdown'?`Começar em ${Math.ceil(s.countdown-s.preparation)}`:`${s.state==='paused'?'Pausado':s.state==='completed'?'Concluído':s.state==='abandoned'?'Abandonado':s.state==='idle'?'Pronto para iniciar':'Em execução'} · ${s.elapsed.toFixed(1)} s`;pause.textContent=s.state==='paused'?'Retomar':'Pausar';pause.disabled=s.state==='idle';analyze.disabled=s.state==='idle';};
-      const diagnostics=element(document,'p','status-note','');
+      const diagnostics=element(document,'p','status-note training-statistics','');
       const updateClock=updateSession;updateSession=()=>{updateClock();if(exercise){const s=exercise.snapshot();diagnostics.textContent=`Diagnóstico em memória: ${s.shots} disparos · ${s.impacts} impactos`;}};
       let replayLevel=null;const replay=element(document,'button','button primary','Jogar novamente');replay.type='button';replay.hidden=true;replay.addEventListener('click',()=>{if(replayLevel)window.location.hash=`/play/dodge/normal/${replayLevel}`;else render();});
       const resultMetrics=element(document,'dialog','result-metrics','');resultMetrics.hidden=true;resultMetrics.setAttribute('aria-labelledby','dodge-result-title');resultMetrics.addEventListener('cancel',event=>event.preventDefault());let shownResult=false;
@@ -149,7 +150,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
         outcome.textContent=current.outcome?`${current.outcome==='victory'?'Vitória':current.outcome==='defeat'?'Derrota':current.outcome==='error'?'Treino interrompido por erro':'Abandonado'} · ${current.elapsed.toFixed(1)} s · ${current.lives} vidas restantes`:'';
       };
       hud.append(status,pause,analyze,exit,diagnostics,replay,outcome);screen.insertBefore(hud,screen.querySelector('.stage'));screen.append(resultMetrics);
-      const unsubscribe=core.events.on('session:changed',updateSession);cleanupScreen=()=>{unsubscribe();if(resultMetrics.open)resultMetrics.close?.();};if(isDodge)readyPanel=mountDodgeReady({screen,stage:screen.querySelector('.stage'),session,title:`${route.mode==='normal'?'Normal':'Sobrevivência'} · Nível ${route.level}`,onStart:()=>updateSession()});else session.start();updateSession();
+      const unsubscribe=core.events.on('session:changed',updateSession);cleanupScreen=()=>{unsubscribe();if(resultMetrics.open)resultMetrics.close?.();};if(isDodge){const bindings=loadPreferences(preferencesStorage),context={title:`Esquiva · ${route.mode==='normal'?'Normal':'Sobrevivência'} · Nível ${route.level}`,objective:'Leia as preparações e desvie das ameaças. Use o espaço para reposicionar o Duelista.',conditions:`${route.mode==='normal'?'Três vidas':'Uma vida'} · tempo ilimitado · encerrar e analisar exige amostra válida.`,commands:`Direito move · ${bindings.stopKey.replace('Key','')} para · ${bindings.flashKey.replace('Key','')} Flash · ${bindings.dashKey.replace('Key','')} dash · Y câmera · Espaço centraliza · ESC pausa.`};trainingPresentation=mountTrainingPresentation({host:screen,stage:screen.querySelector('.stage'),controls:hud,session,events:core.events,pauseButton:pause,context});readyPanel=mountDodgeReady({screen,stage:screen.querySelector('.stage'),session,title:context.title,brief:context,onStart:()=>updateSession()});}else session.start();updateSession();
     }
     if (['/preview','/demo'].includes(route.path)||isDodge) loadPreview().then(({ mountPreview }) => {
       if (!active || revision !== renderRevision) return;
@@ -166,7 +167,7 @@ export function mountNavigation({ root, core, window = root.ownerDocument.defaul
   render(false);
   return { dispose() {
     if (!active) return;
-    active = false; revision++;readyPanel?.dispose();stopArenaContext?.();dodgeReview?.dispose();stopDodgeRecording?.();dodgeRecording?.clear(); preview?.dispose(); cleanupScreen(); rules?.dispose();telemetry?.dispose(); session?.dispose(); exercise?.dispose();
+    active = false; revision++;trainingPresentation?.dispose();readyPanel?.dispose();stopArenaContext?.();dodgeReview?.dispose();stopDodgeRecording?.();dodgeRecording?.clear(); preview?.dispose(); cleanupScreen(); rules?.dispose();telemetry?.dispose(); session?.dispose(); exercise?.dispose();
     stopSessionUI();audio.dispose();repository.close();window.removeEventListener('hashchange', render); skip.removeEventListener('click', skipContent); shell.remove();
   } };
 }

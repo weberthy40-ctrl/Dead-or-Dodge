@@ -1,6 +1,6 @@
 {
   "name": "moba-training",
-  "version": "1.0.0-rc.27",
+  "version": "1.0.0-rc.28",
   "private": true,
   "description": "Treinador de Esquiva, Precisão, Kiting e Reflexos com progresso local.",
   "type": "module",

@@ -1,5 +1,6 @@
 import { createPrecisionPractice,PRECISION_VARIANTS } from '../training/precision/practice.js';
 import { observePrecisionFeedback,describePrecisionGuidance } from '../training/precision/feedback.js';
+import { mountTrainingPresentation,formatTrainingClock } from './trainingPresentation.js';
 import { mountPrecisionCoaching } from './precisionCoaching.js';
 import { mountSaveAttempt } from './saveAttempt.js';
 import { calculatePrecisionScore } from '../training/precision/score.js';
@@ -15,11 +16,11 @@ export function mountPrecisionPractice({screen,core,timed=false,initialLevel=1,r
  const result=element(document,'dialog','precision-result result-metrics');result.hidden=true;result.setAttribute('aria-labelledby','precision-result-title');result.addEventListener('cancel',event=>event.preventDefault());
  const start=element(document,'button','button primary',timed?'Iniciar treino':'Iniciar prática'),restart=element(document,'button','button',timed?'Reiniciar treino':'Reiniciar prática'),pause=element(document,'button','button','Pausar'),back=link(document,'Voltar','/levels','button');for(const b of [start,restart,pause])b.type='button';
  const abandon=element(document,'button','button','Abandonar treino');abandon.type='button';abandon.hidden=!timed;abandon.addEventListener('click',()=>{current?.attempt?.abandon();current?.update();});controls.append(abandon);
- const hud=element(document,'p','muted','Acertos: 0 · Erros: 0 · Cliques válidos: 0 · Precisão observada: —'),notice=element(document,'p','status-note','Preparando arena...'),stage=element(document,'div','stage');
+ const hud=element(document,'p','muted training-statistics','Acertos: 0 · Erros: 0 · Cliques válidos: 0 · Precisão observada: —'),notice=element(document,'p','status-note','Preparando arena...'),stage=element(document,'div','stage');
  const guidance=element(document,'section','precision-guidance'),instruction=element(document,'strong','precision-instruction'),feedbackText=element(document,'span','precision-feedback');guidance.setAttribute('aria-label','Orientação do grupo');feedbackText.setAttribute('role','status');guidance.append(instruction,feedbackText);
  controls.append(start,restart,pause,back);host.append(controls,hud,guidance,notice,stage,result);screen.append(host);
  let active=true,generation=0,current=null;
- function clean(){if(result.open){if(typeof result.close==='function')result.close();else result.removeAttribute('open');}generation++;current?.feedback?.dispose();current?.preview?.dispose();current?.attempt?.dispose();current?.exercise.dispose();current?.session.dispose();current=null;}
+ function clean(){if(result.open){if(typeof result.close==='function')result.close();else result.removeAttribute('open');}generation++;current?.presentation?.dispose();current?.feedback?.dispose();current?.preview?.dispose();current?.attempt?.dispose();current?.exercise.dispose();current?.session.dispose();current=null;}
  function setup(autoStart=false){
    clean();const token=generation;const chosenLevel=Number(levelSelect.value),config=precisionDifficulty(timed?chosenLevel:4,select.value);
    result.hidden=true;result.replaceChildren();select.disabled=levelSelect.disabled=false;
@@ -28,8 +29,9 @@ export function mountPrecisionPractice({screen,core,timed=false,initialLevel=1,r
    const attempt=timed?createPrecisionAttempt({session,practice:exercise,level:chosenLevel,variant:select.value}):null;let summarized=false;
    const feedback=observePrecisionFeedback({events:core.events,attemptId:session.snapshot().id,activeTime:()=>session.snapshot().elapsed});
    current={session,exercise,attempt,feedback};start.disabled=restart.disabled=pause.disabled=true;abandon.disabled=true;notice.textContent='Preparando arena...';
+   current.presentation=mountTrainingPresentation({host,stage,controls,session,events:core.events,startButton:start,pauseButton:pause,context:{title:timed?`Precisão · Nível ${chosenLevel}`:'Precisão · Prática técnica',objective:'Conclua todos os alvos do grupo. Nas sequências, siga o próximo número.',conditions:timed?'60 segundos ativos · nota e histórico local.':'Sem limite de tempo · ajustes do nível 4 · sem nota ou histórico.',commands:'Clique esquerdo acerta · ESC pausa. As marcas ficam dentro da área válida da esfera.'}});
    function update(){if(!active||token!==generation)return;const s=exercise.snapshot(),phase=session.snapshot().state;
-     updateHud(hud,`${phase==='countdown'?`COMEÇA EM ${Math.ceil(session.snapshot().countdown-session.snapshot().preparation)}`:phase==='paused'?'PAUSADO':`${Math.max(0,60-session.snapshot().elapsed).toFixed(0)}s`}   •   ${s.priority&&s.targets.length?"ORDEM: "+s.targets[0].order+" → ":"LIVRE · "}${s.pattern==='single-moving'?'Órbitas':s.pattern==='multi-moving'?'Zigue-zague':s.pattern==='multi-static'?'Tamanhos variados':'Alvos fixos'}   •   GRUPO ${s.groupsCompleted+1} · ${s.groupRemaining}/${s.groupTotal} ALVOS RESTANTES   •   ${s.hits} ACERTOS   •   ${s.misses} ERROS (${s.orderErrors} DE ORDEM)   •   ${s.expired} ATRASADOS   •   ${s.accuracy===null?'—':(s.accuracy*100).toFixed(0)+'%'}`);
+     updateHud(hud,`${formatTrainingClock(session.snapshot(),{duration:timed?60:null})}   •   ${s.priority&&s.targets.length?"ORDEM: "+s.targets[0].order+" → ":"LIVRE · "}${s.pattern==='single-moving'?'Órbitas':s.pattern==='multi-moving'?'Zigue-zague':s.pattern==='multi-static'?'Tamanhos variados':'Alvos fixos'}   •   GRUPO ${s.groupsCompleted+1} · ${s.groupRemaining}/${s.groupTotal} ALVOS RESTANTES   •   ${s.hits} ACERTOS   •   ${s.misses} ERROS (${s.orderErrors} DE ORDEM)   •   ${s.expired} ATRASADOS   •   ${s.accuracy===null?'—':(s.accuracy*100).toFixed(0)+'%'}`);
      const guide=describePrecisionGuidance(s,{sessionState:phase,feedback:feedback.snapshot()});guidance.dataset.mode=guide.mode;guidance.dataset.next=guide.nextOrder??'';if(instruction.textContent!==guide.instruction)instruction.textContent=guide.instruction;if(feedbackText.textContent!==guide.message)feedbackText.textContent=guide.message;
 
      if(s.fallback)notice.textContent='Espaço limitado: quantidade ou movimento dos alvos reduzidos para manter posições seguras. Ajuste a câmera e reinicie se necessário.';

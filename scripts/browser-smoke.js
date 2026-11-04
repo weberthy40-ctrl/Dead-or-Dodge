@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { checkTrainingFlow } from './training-flow.js';
 import { mkdir,writeFile } from 'node:fs/promises';
 import { openBrowserPage,pause } from './cdp.js';
-const page=await openBrowserPage();const measurements=[],graphics=[];let originalPreferences;
+const page=await openBrowserPage();const measurements=[],graphics=[];let originalPreferences,trainingFlow=[];
 try{
  originalPreferences=await page.evaluate("localStorage.getItem('moba-training:preferences:v1')");
  await page.send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});assert.equal(await page.evaluate("document.querySelector('h1').textContent"),'Mecânica afiada.\nPrecisão arcana.');
@@ -39,6 +40,7 @@ try{
   if(process.env.QA_TRACE)console.log(`Graphics ${quality}`);await page.go('/settings');await page.evaluate(`(()=>{const form=[...document.querySelectorAll('form')].find(f=>f.textContent.includes('Qualidade gráfica'));form.querySelectorAll('select')[2].value='${quality}';form.querySelector('button[type=submit]').click();})()`);await page.go('/preview');await page.waitFor("document.querySelectorAll('canvas').length===1&&document.querySelector('.stage').dataset.visuals==='ready'",{timeout:30000});await pause(100);const dimensions=await page.evaluate("(()=>{const c=document.querySelector('canvas'),r=c.getBoundingClientRect();return {css:r.width,internal:c.width,dpr:devicePixelRatio};})()");assert.equal(dimensions.dpr,2);assert.ok(Math.abs(dimensions.internal/dimensions.css-expected)<.01);graphics.push({quality,...dimensions});await page.go('/');
  }
  }
+ if(!process.env.QA_MENUS_ONLY)trainingFlow=await checkTrainingFlow(page,{records:true});
  for(const [width,height]of [[1366,768],[1920,1080],[390,844]]){
   await page.send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
   for(const path of ['/','/levels','/train/dodge','/profile']){
@@ -52,5 +54,5 @@ try{
    if(process.env.QA_ARTIFACT_DIR){await mkdir(process.env.QA_ARTIFACT_DIR,{recursive:true});const shot=await page.send('Page.captureScreenshot',{format:'png'});await writeFile(`${process.env.QA_ARTIFACT_DIR}/${path==='/'?'home':path.split('/').at(-1)}-${width}.png`,Buffer.from(shot.data,'base64'));}
   }
  }
- assert.deepEqual(page.errors,[]);console.log(JSON.stringify({status:'PASSOU',scope:process.env.QA_MENUS_ONLY?'menus-and-profile':'full',navigation:6,otherTrainingLevels:30,dodgeLevels:20,diagnostics:4,reentryQuality:process.env.QA_MENUS_ONLY?null:'leve',reentries:measurements,graphics},null,2));
+ assert.deepEqual(page.errors,[]);console.log(JSON.stringify({status:'PASSOU',scope:process.env.QA_MENUS_ONLY?'menus-and-profile':'full',navigation:6,otherTrainingLevels:30,dodgeLevels:20,diagnostics:4,reentryQuality:process.env.QA_MENUS_ONLY?null:'leve',reentries:measurements,graphics,trainingFlow},null,2));
 }finally{try{if(originalPreferences!==undefined)await page.evaluate(originalPreferences===null?"localStorage.removeItem('moba-training:preferences:v1')":`localStorage.setItem('moba-training:preferences:v1',${JSON.stringify(originalPreferences)})`);}finally{await page.close();}}

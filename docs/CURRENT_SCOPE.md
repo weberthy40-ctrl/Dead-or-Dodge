@@ -1,4 +1,6 @@
-# Escopo atual — 1.0.0-rc.27
+# Escopo atual — 1.0.0-rc.28
+
+A [rc.28](TRAINING_FLOW_RC28.md) padroniza preparação, estado e pausa nos treinos principais das quatro modalidades. Reutiliza sessões e botões, mantém as opções antes de iniciar, devolve foco ao jogo na retomada e deixa explícito que sair abandona a rodada. Práticas sem limite exibem tempo ativo decorrido. Regras, controles ativos, dificuldade, pontuação e dados são preservados.
 
 A [rc.27](REFLEX_FEEDBACK_RC27.md) refina Reflexos: comando e lado do mouse destacados, retorno dos seis resultados e relatório com contadores separados, tempos válidos e orientação de prática. A espera permanece imprevisível; exercícios, relógios, avaliação guiada, pontuação e dados oficiais são preservados.
 
